@@ -1,6 +1,6 @@
 ## @brief Package to manage postgresql connection functionss
-## THIS IS FROM XULPYMONEY PACKAGE IF YOU NEED THIS MODULE PLEASE SYNC IT FROM THERE, FOR EXAMPLE
-## TO SYNC USE CODE OF caloriestracker setup.py
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
+## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
 from datetime import datetime
 from psycopg2 import OperationalError
