@@ -28,7 +28,6 @@ class frmAccess(QDialog, Ui_frmAccess):
     def __init__(self,  settings_root, parent = None):
         QDialog.__init__(self,  parent)
         self.settings=QSettings()
-        self.translator=QTranslator()
         self.settingsroot=settings_root
         
         self.setModal(True)
@@ -66,8 +65,8 @@ class frmAccess(QDialog, Ui_frmAccess):
     @pyqtSlot(int)      
     def on_cmbLanguages_currentIndexChanged(self, stri):
         self.languages.selected=self.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
-        self.settings.setValue(self.settingsroot+"/language", self.languages.selected.d)
-        self.languages.cambiar(self.languages.selected.id)
+        self.settings.setValue(self.settingsroot+"/language", self.languages.selected.id)
+        self.cambiar(self.languages.selected.id)
         self.retranslateUi(self)
    
     @pyqtSlot() 
@@ -106,7 +105,8 @@ class frmAccess(QDialog, Ui_frmAccess):
 
     ## @param id String
     def cambiar(self, id):
+        self.qtranslator=QTranslator(qApp)
         filename=package_filename("caloriestracker", "i18n/caloriestracker_{}.qm".format(id))
         self.qtranslator.load(filename)
         info("TranslationLanguage changed to {}".format(id))
-        qApp.installTranslator(self.lqtranslator)
+        qApp.installTranslator(self.qtranslator)
