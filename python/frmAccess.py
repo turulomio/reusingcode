@@ -8,7 +8,7 @@
 ## libmanagers
 
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QTranslator
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, qApp, QMessageBox
 from .Ui_frmAccess import Ui_frmAccess
@@ -17,28 +17,13 @@ from .. translationlanguages import TranslationLanguageManager
 from .. package_resources import package_filename
 from logging import info
 
-class QTranslationLanguageManager(TranslationLanguageManager):
 
-    def qcombobox(self, combo, selected=None):
-        """Selected is the object"""
-        self.order_by_name()
-        for l in self.arr:
-            combo.addItem(l.name, l.id)
-        if selected!=None:
-                combo.setCurrentIndex(combo.findData(selected.id))
-
-    ## @param id String
-    def cambiar(self, id):
-        filename=package_filename("caloriestracker", "i18n/caloriestracker_{}.qm".format(id))
-        self.mem.qtranslator.load(filename)
-        info("TranslationLanguage changed to {}".format(id))
-        qApp.installTranslator(self.mem.qtranslator)
 
 class frmAccess(QDialog, Ui_frmAccess):
     def __init__(self, qsettings, settings_root,  qtranslator, qpixmap, parent = None):
         QDialog.__init__(self,  parent)
         self.settings=qsettings
-        self.translator=qtranslator
+        self.translator=QTranslator()
         self.settingsroot=settings_root
         self.qpixmap=qpixmap
         
@@ -47,7 +32,7 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.parent=parent
         
         self.cmbLanguages.disconnect()
-        self.languages=QTranslationLanguageManager()
+        self.languages=TranslationLanguageManager()
         self.languages.selected=self.languages.find_by_id(self.settings.value(self.settingsroot+"/language", "en"))
         self.languages.qcombobox(self.cmbLanguages, self.languages.selected)
         self.cmbLanguages.currentIndexChanged.connect(self.on_cmbLanguages_currentIndexChanged)
@@ -128,3 +113,18 @@ class frmAccess(QDialog, Ui_frmAccess):
         m.setIcon(QMessageBox.Information)
         m.setText(text)
         m.exec_()   
+        
+    def qcombobox(self, combo, selected=None):
+        """Selected is the object"""
+        self.order_by_name()
+        for l in self.arr:
+            combo.addItem(l.name, l.id)
+        if selected!=None:
+                combo.setCurrentIndex(combo.findData(selected.id))
+
+    ## @param id String
+    def cambiar(self, id):
+        filename=package_filename("caloriestracker", "i18n/caloriestracker_{}.qm".format(id))
+        self.qtranslator.load(filename)
+        info("TranslationLanguage changed to {}".format(id))
+        qApp.installTranslator(self.qtranslator)
