@@ -5,11 +5,14 @@
 ## In the parent  directory we need
 ## package_resources
 ## connection_pg
-## libmanagers
+## translationlanguages
 
+## access=frmAccess("frmAccess")
+## access.setResources(":/calores.png","calores.png"
+## access.exec_()
 
-from PyQt5.QtCore import pyqtSlot, QTranslator
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot, QTranslator, QSettings
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QDialog, qApp, QMessageBox
 from .Ui_frmAccess import Ui_frmAccess
 from .. connection_pg_qt import ConnectionQt
@@ -17,15 +20,16 @@ from .. translationlanguages import TranslationLanguageManager
 from .. package_resources import package_filename
 from logging import info
 
-
+##After execute it you can link to a singleton for example
+##mem.settings=access.settings
+##mem.con=access.con
 
 class frmAccess(QDialog, Ui_frmAccess):
-    def __init__(self, qsettings, settings_root,  qtranslator, qpixmap, parent = None):
+    def __init__(self, qsettings, settings_root, parent = None):
         QDialog.__init__(self,  parent)
-        self.settings=qsettings
+        self.settings=QSettings
         self.translator=QTranslator()
         self.settingsroot=settings_root
-        self.qpixmap=qpixmap
         
         self.setModal(True)
         self.setupUi(self)
@@ -37,15 +41,14 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.languages.qcombobox(self.cmbLanguages, self.languages.selected)
         self.cmbLanguages.currentIndexChanged.connect(self.on_cmbLanguages_currentIndexChanged)
         
-        self.setPixmap(self.qpixmap)
         self.setTitle(self.tr("Login in PostreSQL database"))
         
         self.con=ConnectionQt()#Pointer to connection
 
-
-    def setPixmap(self, qpixmap):
-        icon = QIcon()
-        icon.addPixmap(qpixmap, QIcon.Normal, QIcon.Off)
+    def setResources(self, pixmap, icon):
+        self.icon= QIcon(icon)
+        self.pixmap=QPixmap(pixmap)
+        self.lbl.setPixmap(self.pixmap)
         self.setWindowIcon(icon)        
         
     def setTitle(self, text):
@@ -109,7 +112,7 @@ class frmAccess(QDialog, Ui_frmAccess):
 
     def qmessagebox(self,  text):
         m=QMessageBox()
-        m.setWindowIcon(QIcon(self.qpixmap))
+        m.setWindowIcon(self.qicon)
         m.setIcon(QMessageBox.Information)
         m.setText(text)
         m.exec_()   
@@ -127,4 +130,4 @@ class frmAccess(QDialog, Ui_frmAccess):
         filename=package_filename("caloriestracker", "i18n/caloriestracker_{}.qm".format(id))
         self.qtranslator.load(filename)
         info("TranslationLanguage changed to {}".format(id))
-        qApp.installTranslator(self.qtranslator)
+        qApp.installTranslator(self.lqtranslator)
