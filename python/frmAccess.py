@@ -25,7 +25,7 @@ from logging import info
 ##mem.con=access.con
 
 class frmAccess(QDialog, Ui_frmAccess):
-    def __init__(self, qsettings, settings_root, parent = None):
+    def __init__(self, settings_root, parent = None):
         QDialog.__init__(self,  parent)
         self.settings=QSettings
         self.translator=QTranslator()
