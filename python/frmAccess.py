@@ -1,12 +1,62 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
+## Required to use this class
+## A singleton called mem
+## Singleton must have:
+## - mem.languages 
+## - mem.settings
+## - mem.qtranslator
+
+## This file must be in a directory ui in the package
+## In the reoot parent we need
+## package_resources
+## connection_pg
+## libmanagers
+
+
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QDialog
-from caloriestracker.ui.Ui_frmAccess import Ui_frmAccess
-from caloriestracker.connection_pg_qt import ConnectionQt
-from caloriestracker.libcaloriestrackerfunctions import qmessagebox
+from PyQt5.QtWidgets import QDialog, qApp, QMessageBox
+from .Ui_frmAccess import Ui_frmAccess
+from .. connection_pg_qt import ConnectionQt
+from .. libmanagers import ObjectManager_With_IdName_Selectable
+from package_resources import package_filename
+from logging import info
+
+
+## Manages languages
+class TranslationLanguageManager(ObjectManager_With_IdName_Selectable):
+    def __init__(self, mem):
+        ObjectManager_With_IdName_Selectable.__init__(self)
+        self.mem=mem
+        
+    def load_all(self):
+        self.append(TranslationLanguage(self.mem, "en","English" ))
+        self.append(TranslationLanguage(self.mem, "es","Español" ))
+        self.append(TranslationLanguage(self.mem, "fr","Français" ))
+        self.append(TranslationLanguage(self.mem, "ro","Rom\xe2n" ))
+        self.append(TranslationLanguage(self.mem, "ru",'\u0420\u0443\u0441\u0441\u043a\u0438\u0439' ))
+
+    def qcombobox(self, combo, selected=None):
+        """Selected is the object"""
+        self.order_by_name()
+        for l in self.arr:
+            combo.addItem(l.name, l.id)
+        if selected!=None:
+                combo.setCurrentIndex(combo.findData(selected.id))
+
+    ## @param id String
+    def cambiar(self, id):
+        filename=package_filename("caloriestracker", "i18n/caloriestracker_{}.qm".format(id))
+        self.mem.qtranslator.load(filename)
+        info("TranslationLanguage changed to {}".format(id))
+        qApp.installTranslator(self.mem.qtranslator)
+ 
+class TranslationLanguage:
+    def __init__(self, mem, id, name):
+        self.id=id
+        self.name=name
 
 class frmAccess(QDialog, Ui_frmAccess):
     def __init__(self, mem, parent = None, name = None, modal = False):
@@ -22,6 +72,10 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.setPixmap(QPixmap(":xulpymoney/coins.png"))
         self.setTitle(self.tr("Xulpymoney - Access"))
         self.con=ConnectionQt()#Pointer to connection
+        self.settingsroot="frmAccess"
+        
+    def setSettingsRoot(self, settingsroot):
+        self.settingsroot
 
 
     def setPixmap(self, qpixmap):
@@ -42,17 +96,17 @@ class frmAccess(QDialog, Ui_frmAccess):
         
         
     def config_load(self):
-        self.txtDB.setText(self.mem.settings.value("frmAccess/db", "xulpymoney" ))
-        self.txtPort.setText(self.mem.settings.value("frmAccess/port", "5432"))
-        self.txtUser.setText(self.mem.settings.value("frmAccess/user", "postgres" ))
-        self.txtServer.setText(self.mem.settings.value("frmAccess/server", "127.0.0.1" ))
+        self.txtDB.setText(self.mem.settings.value(self.settingsroot +"/db", "xulpymoney" ))
+        self.txtPort.setText(self.mem.settings.value(self.settingsroot +"/port", "5432"))
+        self.txtUser.setText(self.mem.settings.value(self.settingsroot +"/user", "postgres" ))
+        self.txtServer.setText(self.mem.settings.value(self.settingsroot +"/server", "127.0.0.1" ))
         self.txtPass.setFocus()
         
     def config_save(self):
-        self.mem.settings.setValue("frmAccess/db", self.txtDB.text() )
-        self.mem.settings.setValue("frmAccess/port",  self.txtPort.text())
-        self.mem.settings.setValue("frmAccess/user" ,  self.txtUser.text())
-        self.mem.settings.setValue("frmAccess/server", self.txtServer.text())   
+        self.mem.settings.setValue(self.settingsroot +"/db", self.txtDB.text() )
+        self.mem.settings.setValue(self.settingsroot +"/port",  self.txtPort.text())
+        self.mem.settings.setValue(self.settingsroot +"/user" ,  self.txtUser.text())
+        self.mem.settings.setValue(self.settingsroot +"/server", self.txtServer.text())   
         self.mem.settings.setValue("mem/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
         self.mem.language=self.mem.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
 
@@ -81,12 +135,16 @@ class frmAccess(QDialog, Ui_frmAccess):
             self.config_save()
             self.accept()
         else:
-            qmessagebox(self.tr("Error conecting to {} database in {} server").format(self.con.db, self.con.server))
+            self.qmessagebox(self.tr("Error conecting to {} database in {} server").format(self.con.db, self.con.server))
             self.reject()
 
     @pyqtSlot() 
     def on_cmdYN_rejected(self):
         self.reject()
 
-
-
+    def qmessagebox(self,  text):
+        m=QMessageBox()
+        m.setWindowIcon(QIcon(":/xulpymoney/coins.png"))
+        m.setIcon(QMessageBox.Information)
+        m.setText(text)
+        m.exec_()   
