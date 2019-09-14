@@ -11,7 +11,7 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, qApp, QMessageBox
-from Ui_frmAccess import Ui_frmAccess
+from .Ui_frmAccess import Ui_frmAccess
 from .. connection_pg_qt import ConnectionQt
 from .. translationlanguages import TranslationLanguageManager
 from .. package_resources import package_filename
