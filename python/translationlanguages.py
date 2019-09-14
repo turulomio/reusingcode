@@ -8,14 +8,14 @@ class TranslationLanguageManager(ObjectManager_With_IdName_Selectable):
         ObjectManager_With_IdName_Selectable.__init__(self)
         
     def load_all(self):
-        self.append(TranslationLanguage(self.mem, "en","English" ))
-        self.append(TranslationLanguage(self.mem, "es","Español" ))
-        self.append(TranslationLanguage(self.mem, "fr","Français" ))
-        self.append(TranslationLanguage(self.mem, "ro","Rom\xe2n" ))
-        self.append(TranslationLanguage(self.mem, "ru",'\u0420\u0443\u0441\u0441\u043a\u0438\u0439' ))
+        self.append(TranslationLanguage("en","English" ))
+        self.append(TranslationLanguage("es","Español" ))
+        self.append(TranslationLanguage("fr","Français" ))
+        self.append(TranslationLanguage("ro","Rom\xe2n" ))
+        self.append(TranslationLanguage("ru",'\u0420\u0443\u0441\u0441\u043a\u0438\u0439' ))
 
  
 class TranslationLanguage:
-    def __init__(self, mem, id, name):
+    def __init__(self, id, name):
         self.id=id
         self.name=name

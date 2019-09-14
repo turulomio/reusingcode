@@ -37,11 +37,18 @@ class frmAccess(QDialog, Ui_frmAccess):
         
         self.cmbLanguages.disconnect()
         self.languages=TranslationLanguageManager()
+        self.languages.load_all()
         self.languages.selected=self.languages.find_by_id(self.settings.value(self.settingsroot+"/language", "en"))
+        print(self.languag)
         self.languages.qcombobox(self.cmbLanguages, self.languages.selected)
         self.cmbLanguages.currentIndexChanged.connect(self.on_cmbLanguages_currentIndexChanged)
         
-        self.setTitle(self.tr("Login in PostreSQL database"))
+        self.setTitle(self.tr("Log in PostreSQL database"))
+        self.txtDB.setText(self.settings.value(self.settingsroot +"/db", "" ))
+        self.txtPort.setText(self.settings.value(self.settingsroot +"/port", "5432"))
+        self.txtUser.setText(self.settings.value(self.settingsroot +"/user", "postgres" ))
+        self.txtServer.setText(self.settings.value(self.settingsroot +"/server", "127.0.0.1" ))
+        self.txtPass.setFocus()
         
         self.con=ConnectionQt()#Pointer to connection
 
@@ -49,58 +56,31 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.icon= QIcon(icon)
         self.pixmap=QPixmap(pixmap)
         self.lbl.setPixmap(self.pixmap)
-        self.setWindowIcon(icon)        
+        self.setWindowIcon(self.icon)        
         
     def setTitle(self, text):
         self.setWindowTitle(text)
         
     def setLabel(self, text):
         self.lbl.setText(text)
-        
-    def showLanguage(self, boolean):
-        if boolean==False:
-            self.cmbLanguages.hide()
-            self.lblLanguage.hide()
-        
-        
-    def config_load(self):
-        self.txtDB.setText(self.mem.settings.value(self.settingsroot +"/db", "xulpymoney" ))
-        self.txtPort.setText(self.mem.settings.value(self.settingsroot +"/port", "5432"))
-        self.txtUser.setText(self.mem.settings.value(self.settingsroot +"/user", "postgres" ))
-        self.txtServer.setText(self.mem.settings.value(self.settingsroot +"/server", "127.0.0.1" ))
-        self.txtPass.setFocus()
-        
-    def config_save(self):
-        self.mem.settings.setValue(self.settingsroot +"/db", self.txtDB.text() )
-        self.mem.settings.setValue(self.settingsroot +"/port",  self.txtPort.text())
-        self.mem.settings.setValue(self.settingsroot +"/user" ,  self.txtUser.text())
-        self.mem.settings.setValue(self.settingsroot +"/server", self.txtServer.text())   
-        self.mem.settings.setValue(self.settingsroot+"/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
-        self.mem.language=self.mem.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
-
+                
     @pyqtSlot(int)      
     def on_cmbLanguages_currentIndexChanged(self, stri):
-        self.mem.language=self.mem.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
-        self.mem.settings.setValue(self.settingsroot+"/language", self.mem.language.id)
-        self.mem.languages.cambiar(self.mem.language.id)
+        self.languages.selected=self.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
+        self.settings.setValue(self.settingsroot+"/language", self.languages.selected.d)
+        self.languages.cambiar(self.languages.selected.id)
         self.retranslateUi(self)
-
-    def make_connection(self):
-        """Función que realiza la conexión devolviendo true o false con el éxito"""
-        try:
-            self.con.init__create(self.txtUser.text(), self.txtPass.text(), self.txtServer.text(), self.txtPort.text(), self.txtDB.text())
-            self.con.connect()
-            return self.con.is_active()
-        except:
-            print ("Error in function make_connection",  self.mem.con)
-            return False
-    
+   
     @pyqtSlot() 
     def on_cmdYN_accepted(self):
+        self.settings.setValue(self.settingsroot +"/db", self.txtDB.text() )
+        self.settings.setValue(self.settingsroot +"/port",  self.txtPort.text())
+        self.settings.setValue(self.settingsroot +"/user" ,  self.txtUser.text())
+        self.settings.setValue(self.settingsroot +"/server", self.txtServer.text())   
+        self.settings.setValue(self.settingsroot+"/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
         self.con.init__create(self.txtUser.text(), self.txtPass.text(), self.txtServer.text(), self.txtPort.text(), self.txtDB.text())
         self.con.connect()
         if self.con.is_active():
-            self.config_save()
             self.accept()
         else:
             self.qmessagebox(self.tr("Error conecting to {} database in {} server").format(self.con.db, self.con.server))
