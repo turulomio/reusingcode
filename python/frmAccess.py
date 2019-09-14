@@ -55,7 +55,7 @@ class frmAccess(QDialog, Ui_frmAccess):
     def setResources(self, pixmap, icon):
         self.icon= QIcon(icon)
         self.pixmap=QPixmap(pixmap)
-        self.lbl.setPixmap(self.pixmap)
+        self.lblPixmap.setPixmap(self.pixmap)
         self.setWindowIcon(self.icon)        
         
     def setTitle(self, text):
