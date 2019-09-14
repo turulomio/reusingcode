@@ -1,42 +1,23 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
-## Required to use this class
-## A singleton called mem
-## Singleton must have:
-## - mem.languages 
-## - mem.settings
-## - mem.qtranslator
-
 ## This file must be in a directory ui in the package
-## In the reoot parent we need
+## In the parent  directory we need
 ## package_resources
 ## connection_pg
 ## libmanagers
 
 
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, qApp, QMessageBox
-from .Ui_frmAccess import Ui_frmAccess
+from Ui_frmAccess import Ui_frmAccess
 from .. connection_pg_qt import ConnectionQt
-from .. libmanagers import ObjectManager_With_IdName_Selectable
-from package_resources import package_filename
+from .. translationlanguages import TranslationLanguageManager
+from .. package_resources import package_filename
 from logging import info
 
-
-## Manages languages
-class TranslationLanguageManager(ObjectManager_With_IdName_Selectable):
-    def __init__(self, mem):
-        ObjectManager_With_IdName_Selectable.__init__(self)
-        self.mem=mem
-        
-    def load_all(self):
-        self.append(TranslationLanguage(self.mem, "en","English" ))
-        self.append(TranslationLanguage(self.mem, "es","Español" ))
-        self.append(TranslationLanguage(self.mem, "fr","Français" ))
-        self.append(TranslationLanguage(self.mem, "ro","Rom\xe2n" ))
-        self.append(TranslationLanguage(self.mem, "ru",'\u0420\u0443\u0441\u0441\u043a\u0438\u0439' ))
+class QTranslationLanguageManager(TranslationLanguageManager):
 
     def qcombobox(self, combo, selected=None):
         """Selected is the object"""
@@ -52,30 +33,29 @@ class TranslationLanguageManager(ObjectManager_With_IdName_Selectable):
         self.mem.qtranslator.load(filename)
         info("TranslationLanguage changed to {}".format(id))
         qApp.installTranslator(self.mem.qtranslator)
- 
-class TranslationLanguage:
-    def __init__(self, mem, id, name):
-        self.id=id
-        self.name=name
 
 class frmAccess(QDialog, Ui_frmAccess):
-    def __init__(self, mem, parent = None, name = None, modal = False):
-        """Returns accepted if conection is done, or rejected if there's an error"""""
+    def __init__(self, qsettings, settings_root,  qtranslator, qpixmap, parent = None):
         QDialog.__init__(self,  parent)
-        self.mem=mem
+        self.settings=qsettings
+        self.translator=qtranslator
+        self.settingsroot=settings_root
+        self.qpixmap=qpixmap
+        
         self.setModal(True)
         self.setupUi(self)
         self.parent=parent
-        self.cmbLanguages.disconnect()
-        self.mem.languages.qcombobox(self.cmbLanguages, self.mem.language)
-        self.cmbLanguages.currentIndexChanged.connect(self.on_cmbLanguages_currentIndexChanged)
-        self.setPixmap(QPixmap(":xulpymoney/coins.png"))
-        self.setTitle(self.tr("Xulpymoney - Access"))
-        self.con=ConnectionQt()#Pointer to connection
-        self.settingsroot="frmAccess"
         
-    def setSettingsRoot(self, settingsroot):
-        self.settingsroot
+        self.cmbLanguages.disconnect()
+        self.languages=QTranslationLanguageManager()
+        self.languages.selected=self.languages.find_by_id(self.settings.value(self.settingsroot+"/language", "en"))
+        self.languages.qcombobox(self.cmbLanguages, self.languages.selected)
+        self.cmbLanguages.currentIndexChanged.connect(self.on_cmbLanguages_currentIndexChanged)
+        
+        self.setPixmap(self.qpixmap)
+        self.setTitle(self.tr("Login in PostreSQL database"))
+        
+        self.con=ConnectionQt()#Pointer to connection
 
 
     def setPixmap(self, qpixmap):
@@ -107,13 +87,13 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.mem.settings.setValue(self.settingsroot +"/port",  self.txtPort.text())
         self.mem.settings.setValue(self.settingsroot +"/user" ,  self.txtUser.text())
         self.mem.settings.setValue(self.settingsroot +"/server", self.txtServer.text())   
-        self.mem.settings.setValue("mem/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
+        self.mem.settings.setValue(self.settingsroot+"/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
         self.mem.language=self.mem.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
 
     @pyqtSlot(int)      
     def on_cmbLanguages_currentIndexChanged(self, stri):
         self.mem.language=self.mem.languages.find_by_id(self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
-        self.mem.settings.setValue("mem/language", self.mem.language.id)
+        self.mem.settings.setValue(self.settingsroot+"/language", self.mem.language.id)
         self.mem.languages.cambiar(self.mem.language.id)
         self.retranslateUi(self)
 
@@ -144,7 +124,7 @@ class frmAccess(QDialog, Ui_frmAccess):
 
     def qmessagebox(self,  text):
         m=QMessageBox()
-        m.setWindowIcon(QIcon(":/xulpymoney/coins.png"))
+        m.setWindowIcon(QIcon(self.qpixmap))
         m.setIcon(QMessageBox.Information)
         m.setText(text)
         m.exec_()   
