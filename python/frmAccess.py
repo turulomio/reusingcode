@@ -39,7 +39,6 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.languages=TranslationLanguageManager()
         self.languages.load_all()
         self.languages.selected=self.languages.find_by_id(self.settings.value(self.settingsroot+"/language", "en"))
-        print(self.languag)
         self.languages.qcombobox(self.cmbLanguages, self.languages.selected)
         self.cmbLanguages.currentIndexChanged.connect(self.on_cmbLanguages_currentIndexChanged)
         
