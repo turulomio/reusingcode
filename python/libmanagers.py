@@ -271,6 +271,23 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
                 return a
         logging.debug("{} didn't find the name: {}".format(self.__class__, name))
         return None
+
+
+    ## Returns another object manager of the same class with the elements that contains a string in the name
+    ## @param s string to search
+    ## @casesensitive Boolean if it's a case sensitive search    
+    def ObjectManager_with_name_contains_string(self, s, casesensitive, *initparams):
+        result=self.__class__(*initparams)#Para que coja la clase del objeto que lo invoca
+        if casesensitive==True:
+            for a in self.arr:
+                if s in a.name:
+                    result.append(a)
+            return result
+        else:
+            for a in self.arr:
+                if s.upper() in a.name.upper():
+                    result.append(a)
+            return result
         
     def order_by_name(self):
         """Orders the Set using self.arr"""
