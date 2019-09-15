@@ -476,7 +476,7 @@ class DVManager(ObjectManager):
             sma.value=0
             sma.datetime=self.arr[i].datetime
             for p in range(period):
-                sma.value=sma.value+self.arr[i-p].weight
+                sma.value=sma.value+self.arr[i-p].value
             sma.value=sma.value/period
             r.append(sma)
         return r
