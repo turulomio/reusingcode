@@ -448,6 +448,42 @@ class ObjectManager_With_IdName_Selectable(ObjectManager_With_IdName, ManagerSel
         ManagerSelection.__init__(self)
 
 
+
+
+## THIS IS A NEW SERIE OF MANAGERS DATA VALUE
+class DV:
+    def __init__(self):
+        self.datetime=None
+        self.value=None
+
+    def __repr__(self):
+        return "DV {} = {}".format(self.date,self.value)
+
+class DVManager(ObjectManager):
+    def __init__(self):
+        ObjectManager.__init__(self)
+    def append(self, datetime, value):
+        o=DV()
+        o.datetime=datetime
+        o.value=value
+        self.append(o)    ## Returns a date value manager with the simple movil average 3 of weight
+    
+    ## Returns a DVManager with the simple movil average of the array
+    def sma(self, period):
+        r=DVManager()
+        for i in range(period, self.length()):
+            sma=DV()
+            sma.value=0
+            sma.datetime=self.arr[i].datetime
+            for p in range(period):
+                sma.value=sma.value+self.arr[i-p].weight
+            sma.value=sma.value/period
+            r.append(sma)
+        return r
+
+
+
+
 if __name__ == "__main__":
      import datetime
      sizes=(1,10,100,1000,10000,100000,1000000,3000000)
