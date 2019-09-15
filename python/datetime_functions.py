@@ -1,10 +1,13 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
+
+## If a function only can be used by dtaware or naive it will have its prefix dtaware_ or dtnaive_
+## If a function can use both of them its prefix will be dt_
+
+
 from datetime import timedelta, datetime, date, time
 from pytz import timezone
-from logging import critical
-
-
+from logging import debug, error
 
 ## Types for dt strings. Used in dtaware2string function
 class eDtStrings:
@@ -53,23 +56,14 @@ def days2string(days):
 ## Returns a date with the last date of the month
 ## @param year Year to search last day
 ## @param month Month to search last day
-def month_last_date(year, month):
+def date_last_of_the_month(year, month):
     if month==12:
         return datetime.date(year, month, 31)
     return datetime.date(year, month+1, 1)-datetime.timedelta(days=1)
 
 def dtaware_month_end(year, month, tz_name):
-    """datetime último de un mes
-    """
-    return dtaware_day_end_from_date(month_last_date(year, month), tz_name)
+    return dtaware_day_end_from_date(date_last_of_the_month(year, month), tz_name)
     
-## Returns a date with the last day of a month
-## @return date object
-def _(year, month):
-    if month == 12:
-        return date(year, month, 31)
-    return date(year, month+1, 1) - timedelta(days=1)
-
 ## Returns an aware datetime with the start of year
 def dtaware_year_start(year, tz_name):
     return dtaware_day_start_from_date(date(year, 1, 1), tz_name)
@@ -77,23 +71,37 @@ def dtaware_year_start(year, tz_name):
 ## Returns an aware datetime with the last of year
 def dtaware_year_end(year, tz_name):
     return dtaware_day_end_from_date(date(year, 12, 31), tz_name)
-def dtaware_day_end(dattime, tz_name):
-    """Saca cuando acaba el dia de un dattime en una zona concreta"""
-    return dtaware_changes_tz(dattime, tz_name).replace(hour=23, minute=59, second=59)
     
-def dtaware_day_start(dattime, tz_name):
-    return dtaware_changes_tz(dattime, tz_name).replace(hour=0, minute=0, second=0)
-    
+## Returns a dtnaive or dtawre (as parameter) with the end of the day
+def dt_day_end(dt):
+    return dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+## Returns the end of the day dtnaive from a date
+def dtnaive_day_end_from_date(dat):
+    dt=datetime(dat.year, dat.month, dat.day)
+    return dt_day_end(dt)
+
+## Returns the end of the day dtaware of the tz_name timezone from a date
 def dtaware_day_end_from_date(date, tz_name):
-    """Saca cuando acaba el dia de un dattime en una zona concreta"""
-    return dtaware(date, time(23, 59, 59), tz_name)
+    dt=dtaware(date, time(0, 0), tz_name)
+    return dt_day_end(dt)    
     
+## Returns a dtnaive or dtawre (as parameter) with the end of the day
+def dt_day_start(dt):
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
+
+## Returns the end of the day dtnaive from a date
+def dtnaive_day_start_from_date(dat):
+    dt=datetime(dat.year, dat.month, dat.day)
+    return dt_day_start(dt)
+
+## Returns the end of the day dtaware of the tz_name timezone from a date
 def dtaware_day_start_from_date(date, tz_name):
-    return dtaware(date, time(0, 0, 0), tz_name)
-    
+    dt=dtaware(date, time(0, 0), tz_name)
+    return dt_day_start(dt)
+
+## Returns the start of a month
 def dtaware_month_start(year, month, tz_name):
-    """datetime primero de un mes
-    """
     return dtaware_day_start_from_date(date(year, month, 1), tz_name)
     
 def month2int(s):
@@ -125,45 +133,46 @@ def month2int(s):
     if s in ["Dic", "Dec", "Diciembre", "December", "diciembre", "december"]:
         return 12
 
+def string2time(s, format="HH:MM"):
+    allowed=["HH:MM", "HH:MM:SS"]
+    if format in allowed:
+        if format=="HH:MM":#12:12
+            a=s.split(":")
+            return time(int(a[0]), int(a[1]))
+        elif format=="HH:MM:SS":#12:12:12
+            a=s.split(":")
+            return time(int(a[0]), int(a[1]), int(a[2]))
+    else:
+        error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
-## Converts a tring 12:23 to a time object
-def string2time(s, type=1):
-    if type==1:#12:12
-        a=s.split(":")
-        return time(int(a[0]), int(a[1]))
-    elif type==2:#12:12:12
-        a=s.split(":")
-        return time(int(a[0]), int(a[1]), int(a[2]))
+def string2date(iso, format="YYYY-MM-DD"):
+    allowed=["YYYY-MM-DD", "DD/MM/YYYY", "DD.MM.YYYY", "DD/MM"]
+    if format in allowed:
+        if format=="YYYY-MM-DD": #YYYY-MM-DD
+            d=iso.split("-")
+            return date(int(d[0]), int(d[1]),  int(d[2]))
+        if format=="DD/MM/YYYY": #DD/MM/YYYY
+            d=iso.split("/")
+            return date(int(d[2]), int(d[1]),  int(d[0]))
+        if format=="DD.MM.YYYY": #DD.MM.YYYY
+            d=iso.split(".")
+            return date(int(d[2]), int(d[1]),  int(d[0]))
+        if format=="DD/MM": #DD/MM
+            d=iso.split("/")
+            return date(date.today().year, int(d[1]),  int(d[0]))
+    else:
+        error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
-def string2date(iso, type=1):
-    """
-        date string to date, with type formats
-    """
-    if type==1: #YYYY-MM-DD
-        d=iso.split("-")
-        return date(int(d[0]), int(d[1]),  int(d[2]))
-    if type==2: #DD/MM/YYYY
-        d=iso.split("/")
-        return date(int(d[2]), int(d[1]),  int(d[0]))
-    if type==3: #DD.MM.YYYY
-        d=iso.split(".")
-        return date(int(d[2]), int(d[1]),  int(d[0]))
-    if type==4: #DD/MM
-        d=iso.split("/")
-        return date(date.today().year, int(d[1]),  int(d[0]))
-
-## Function to generate a datetime (aware or naive) from a string
+        
+## Function to generate a datetime aware from a string
 ## @param s String
 ## @param type Integer
 ## @param tz_name Name of the tz_name. By default "Europe Madrid" only in type 3and 4
 ## @return Datetime
-def string2datetime(s, type, tz_name="Europe/Madrid"):
+def string2dtaware(s, type, tz_name="Europe/Madrid"):
     if type==1:#2017-11-20 23:00:00+00:00  ==> Aware
         s=s[:-3]+s[-2:]
         dat=datetime.strptime( s, "%Y-%m-%d %H:%M:%S%z" )
-        return dat
-    if type==2:#20/11/2017 23:00 ==> Naive
-        dat=datetime.strptime( s, "%d/%m/%Y %H:%M" )
         return dat
     if type==3:#20/11/2017 23:00 ==> Aware, using zone parameter
         dat=datetime.strptime( s, "%d/%m/%Y %H:%M" )
@@ -181,35 +190,35 @@ def string2datetime(s, type, tz_name="Europe/Madrid"):
         dat=datetime.strptime( s, "%Y-%m-%d %H:%M:%S%z" )
         dat=dat+timedelta(microseconds=micro)
         return dat
-    if type==6:#201907210725 ==> Naive
-        dat=datetime.strptime( s, "%Y%m%d%H%M" )
-        return dat
     if type==7:#01:02:03 ==> Aware
         tod=date.today()
         a=s.split(":")
         dat=datetime(tod.year, tod.month, tod.day, int(a[0]), int(a[1]), int(a[2]))
         z=timezone(tz_name)
         return z.localize(dat)
+        
+def string2dtnaive(s, type):
+    if type==2:#20/11/2017 23:00 ==> Naive
+        dat=datetime.strptime( s, "%d/%m/%Y %H:%M" )
+        return dat
+    if type==6:#201907210725 ==> Naive
+        dat=datetime.strptime( s, "%Y%m%d%H%M" )
+        return dat
 
+## Puede ser dateime o date
+## Si viene con zona datetime tz_name aware, se convierte a UTC y se da el valor en UTC
+## return now(timezone(self.name))
 def dtaware2epochms(d):
-    """
-        Puede ser dateime o date
-        Si viene con zona datetime tz_name aware, se convierte a UTC y se da el valor en UTC
-        return now(timezone(self.name))
-    """
-    if d.__class__==datetime:
-        if d.tzname()==None:#unaware datetine
-            critical("Must be aware")
-        else:#aware dateime changed to unawar
-            utc=dtaware_changes_tz(d, 'UTC')
-            return utc.timestamp()*1000
-    critical("{} can't be converted to epochms".format(d.__class__))
+    debug("MAL HAY UN DESFASE DE 15 MINUTOS")
+    utc=dtaware_changes_tz(d, 'UTC')
+    return utc.timestamp()*1000
     
 ## Return a UTC datetime aware
-def epochms2dtaware(n):
+def epochms2dtaware(n, tz="UTC"):
+    debug("MAL HAY UN DESFASE DE 15 MINUTOS")
     utc_unaware=datetime.utcfromtimestamp(n/1000)
-    utc_aware=utc_unaware.replace(tzinfo=timezone('UTC'))
-    return utc_aware
+    utc_aware=utc_unaware.replace(tzinfo=timezone(tz))
+    return dtaware_changes_tz(utc_aware, tz)
 
 
 ## Returns a formated string of a dtaware string formatting with a zone name
@@ -254,3 +263,25 @@ def dtaware_changes_tz(dt,  tzname):
     tzt=timezone(tzname)
     tarjet=tzt.normalize(dt.astimezone(tzt))
     return tarjet
+
+
+if __name__ == "__main__":
+    tz="Europe/Madrid"
+    now=datetime.now()
+    print("Current localzone is", tz)
+    print ("DtNaive:",  now)
+    now_aware=dtaware(now.date(), now.time(), tz)
+    print("DtAware:", now_aware)
+    epochms=dtaware2epochms(now_aware)
+    print("Epoch in miliseconds:", epochms)
+    print("Dtaware reconverting epoch {} <== MAL HAY UN DESFASE DE 15 MINUTOS".format(epochms2dtaware(epochms, tz)) )
+    print("This is a dataware string wight eDtStrings.QTableWidgetItem:", dtaware2string(now_aware, eDtStrings.QTableWidgetItem))
+    print("This is a dataware string wight eDtStrings.Filename:", dtaware2string(now_aware, eDtStrings.Filename))
+    print("This is a dataware string wight eDtStrings.String:", dtaware2string(now_aware, eDtStrings.String))
+    now_aware_in_utc=dtaware_changes_tz(now_aware, 'UTC')
+    print("Datetime '{}' changes to UTC '{}'".format(now_aware, now_aware_in_utc))
+    print()
+    print("dt_day_end")
+    print("  - Today will end at '{}' as naive".format(dt_day_end(now)))
+    print("  - Today will end at '{}' as aware in this timezone '{}'".format( dt_day_end(now_aware), tz))
+    
