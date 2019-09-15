@@ -462,7 +462,7 @@ class DV:
 class DVManager(ObjectManager):
     def __init__(self):
         ObjectManager.__init__(self)
-    def append(self, datetime, value):
+    def appendDV(self, datetime, value):
         o=DV()
         o.datetime=datetime
         o.value=value
