@@ -4,7 +4,6 @@ from datetime import timedelta, datetime, date, time
 from pytz import timezone
 from logging import critical
 
-from PyQt5.QtWidgets import QApplication
 
 
 ## Types for dt strings. Used in dtaware2string function
@@ -21,17 +20,19 @@ class eDtStrings:
 ## Function to create a datetime aware object
 ## @param date datetime.date object
 ## @param hour hour object
-## @param zonename String with datetime zone name. For example "Europe/Madrid"
+## @param tz_name String with datetime tz_name name. For example "Europe/Madrid"
 ## @return datetime aware
-def dtaware(date, hour, zonename):
-    z=timezone(zonename)
+def dtaware(date, hour, tz_name):
+    z=timezone(tz_name)
     a=datetime(date.year,  date.month,  date.day,  hour.hour,  hour.minute,  hour.second, hour.microsecond)
     a=z.localize(a)
     return a
-    ## Function that converts a number of days to a string showing years, months and days
+    
+## Function that converts a number of days to a string showing years, months and days
 ## @param days Integer with the number of days
 ## @return String like " 0 years, 1 month and 3 days"
 def days2string(days):
+    from PyQt5.QtWidgets import QApplication
     years=days//365
     months=(days-years*365)//30
     days=int(days -years*365 -months*30)
@@ -49,44 +50,51 @@ def days2string(days):
         strdays=QApplication.translate("Core", "days")
     return QApplication.translate("Core", "{} {}, {} {} and {} {}").format(years, stryears,  months,  strmonths, days,  strdays)
 
+## Returns a date with the last date of the month
+## @param year Year to search last day
+## @param month Month to search last day
+def month_last_date(year, month):
+    if month==12:
+        return datetime.date(year, month, 31)
+    return datetime.date(year, month+1, 1)-datetime.timedelta(days=1)
 
-def month_end(year, month, zone):
+def dtaware_month_end(year, month, tz_name):
     """datetime último de un mes
     """
-    return day_end_from_date(month_last_date(year, month), zone)
+    return dtaware_day_end_from_date(month_last_date(year, month), tz_name)
     
 ## Returns a date with the last day of a month
 ## @return date object
-def month_last_date(year, month):
+def _(year, month):
     if month == 12:
         return date(year, month, 31)
     return date(year, month+1, 1) - timedelta(days=1)
 
 ## Returns an aware datetime with the start of year
-def year_start(year, zone):
-    return day_start_from_date(date(year, 1, 1), zone)
+def dtaware_year_start(year, tz_name):
+    return dtaware_day_start_from_date(date(year, 1, 1), tz_name)
     
 ## Returns an aware datetime with the last of year
-def year_end(year, zone):
-    return day_end_from_date(date(year, 12, 31), zone)
-def day_end(dattime, zone):
+def dtaware_year_end(year, tz_name):
+    return dtaware_day_end_from_date(date(year, 12, 31), tz_name)
+def dtaware_day_end(dattime, tz_name):
     """Saca cuando acaba el dia de un dattime en una zona concreta"""
-    return dtaware_changes_tz(dattime, zone.name).replace(hour=23, minute=59, second=59)
+    return dtaware_changes_tz(dattime, tz_name).replace(hour=23, minute=59, second=59)
     
-def day_start(dattime, zone):
-    return dtaware_changes_tz(dattime, zone.name).replace(hour=0, minute=0, second=0)
+def dtaware_day_start(dattime, tz_name):
+    return dtaware_changes_tz(dattime, tz_name).replace(hour=0, minute=0, second=0)
     
-def day_end_from_date(date, zone):
+def dtaware_day_end_from_date(date, tz_name):
     """Saca cuando acaba el dia de un dattime en una zona concreta"""
-    return dtaware(date, time(23, 59, 59), zone.name)
+    return dtaware(date, time(23, 59, 59), tz_name)
     
-def day_start_from_date(date, zone):
-    return dtaware(date, time(0, 0, 0), zone.name)
+def dtaware_day_start_from_date(date, tz_name):
+    return dtaware(date, time(0, 0, 0), tz_name)
     
-def month_start(year, month, zone):
+def dtaware_month_start(year, month, tz_name):
     """datetime primero de un mes
     """
-    return day_start_from_date(date(year, month, 1), zone)
+    return dtaware_day_start_from_date(date(year, month, 1), tz_name)
     
 def month2int(s):
     """
@@ -126,9 +134,7 @@ def string2time(s, type=1):
     elif type==2:#12:12:12
         a=s.split(":")
         return time(int(a[0]), int(a[1]), int(a[2]))
-        
-        
-            
+
 def string2date(iso, type=1):
     """
         date string to date, with type formats
@@ -149,9 +155,9 @@ def string2date(iso, type=1):
 ## Function to generate a datetime (aware or naive) from a string
 ## @param s String
 ## @param type Integer
-## @param zone Name of the zone. By default "Europe Madrid" only in type 3and 4
+## @param tz_name Name of the tz_name. By default "Europe Madrid" only in type 3and 4
 ## @return Datetime
-def string2datetime(s, type, zone="Europe/Madrid"):
+def string2datetime(s, type, tz_name="Europe/Madrid"):
     if type==1:#2017-11-20 23:00:00+00:00  ==> Aware
         s=s[:-3]+s[-2:]
         dat=datetime.strptime( s, "%Y-%m-%d %H:%M:%S%z" )
@@ -161,11 +167,11 @@ def string2datetime(s, type, zone="Europe/Madrid"):
         return dat
     if type==3:#20/11/2017 23:00 ==> Aware, using zone parameter
         dat=datetime.strptime( s, "%d/%m/%Y %H:%M" )
-        z=timezone(zone)
+        z=timezone(tz_name)
         return z.localize(dat)
     if type==4:#27 1 16:54 2017==> Aware, using zone parameter . 1 es el mes convertido con month2int
         dat=datetime.strptime( s, "%d %m %H:%M %Y")
-        z=timezone(zone)
+        z=timezone(tz_name)
         return z.localize(dat)
     if type==5:#2017-11-20 23:00:00.000000+00:00  ==> Aware with microsecond
         s=s[:-3]+s[-2:]#quita el :
@@ -182,13 +188,13 @@ def string2datetime(s, type, zone="Europe/Madrid"):
         tod=date.today()
         a=s.split(":")
         dat=datetime(tod.year, tod.month, tod.day, int(a[0]), int(a[1]), int(a[2]))
-        z=timezone(zone)
+        z=timezone(tz_name)
         return z.localize(dat)
 
 def dtaware2epochms(d):
     """
         Puede ser dateime o date
-        Si viene con zona datetime zone aware, se convierte a UTC y se da el valor en UTC
+        Si viene con zona datetime tz_name aware, se convierte a UTC y se da el valor en UTC
         return now(timezone(self.name))
     """
     if d.__class__==datetime:
