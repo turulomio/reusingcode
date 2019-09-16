@@ -4,7 +4,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import  QColor
 from PyQt5.QtWidgets import QTableWidgetItem, QApplication
-from .. datetime_functions import dtaware2string, dtaware_changes_tz
+from .. datetime_functions import dtaware2string, dtaware_changes_tz, time2string
 
 def qbool(bool):
     """Prints bool and check. Is read only and enabled"""
@@ -106,23 +106,15 @@ def qnumber_limited(n, limit, digits=2, reverse=False):
     return a
 
 ## Shows the time of a datetime
-## types: 1 Xulpymoney way 
-## @param ti can be a datetime object or a time object
-def qtime(ti, types=2):
+## See function time2string of datetime_functions to see formats
+## @param ti must be a time object
+def qtime(ti, format="HH:MM"):
     if ti==None:
         return qempty()
-    if types==1:
+    item=qright(time2string(ti, format))
+    if format=="Xulpymoney":
         if ti.microsecond==5:
-            item=qleft(str(ti)[11:-13])
             item.setBackground(QColor(255, 255, 148))
         elif ti.microsecond==4:
-            item=qleft(str(ti)[11:-13])
             item.setBackground(QColor(148, 148, 148))
-        else:
-            item=qleft(str(ti)[11:-6])
-    elif types==2:# HH:MM
-        if ti.__class__.__name__=="datetime":
-            ti=ti.time()
-        item=qright("{}:{}".format(ti.hour, ti.minute))
     return item
-    
