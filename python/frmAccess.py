@@ -27,7 +27,7 @@ from logging import info
 ## @param module From this string we get the module translation path and de root 
 ## @param settings_root string
 class frmAccess(QDialog, Ui_frmAccess):
-    def __init__(self, module, parent = None):
+    def __init__(self, module, settings_root, parent = None):
         QDialog.__init__(self,  parent)
         self.settings=QSettings()
         self.settingsroot=settings_root
