@@ -1,13 +1,12 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
-## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
-
-
-from pkg_resources import resource_listdir, resource_filename
+from .package_resources import package_listdir, package_filename
 _=str
 
-def database_update(con):
+
+## @param con Connection object
+## @param package string with the name of the package where sql directory is
+def database_update(con, package):
     sqls=[]
-    for name in resource_listdir('caloriestracker', 'sql'):
+    for name in package_listdir(package, 'sql'):
         if name[-3:]=="sql":
             sqls.append(int(name[:-4]))
     sqls.sort()
@@ -20,7 +19,7 @@ def database_update(con):
             database_version=0
 
         if database_version<sql:
-            con.load_script(resource_filename('caloriestracker',  "sql/{}.sql".format(sql)))
+            con.load_script(package_filename(package,  "sql/{}.sql".format(sql)))
             con.cursor_one_field("update globals set value=%s where id=1 returning id",(sql,))
             con.commit()
             print("  + Updated database version from {} to {}".format(database_version, sql))
