@@ -1,11 +1,10 @@
 from PyQt5.QtCore import  Qt,  pyqtSlot,  QObject
-from PyQt5.QtGui import QPainter, QFont,  QColor, QIcon
-from PyQt5.QtWidgets import QAction, QMenu, QFileDialog, QProgressDialog, QApplication
-from xulpymoney.libxulpymoney import    Percentage
-from .. datetime_functions import epochms2dtaware, dtaware2epochms, dtnaive2string
-from xulpymoney.libxulpymoneytypes import  eOHCLDuration, eDtStrings
-import datetime
-from PyQt5.QtChart import QChart,  QLineSeries, QChartView, QValueAxis, QDateTimeAxis,  QPieSeries, QCandlestickSeries,  QCandlestickSet,  QScatterSeries
+from PyQt5.QtGui import QPainter, QFont,  QIcon
+from PyQt5.QtWidgets import QAction, QMenu, QFileDialog, QProgressDialog, QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout
+from .. objects.percentage import Percentage
+from .. datetime_functions import epochms2dtaware, dtaware2epochms, dtnaive2string, eDtStrings
+from datetime import timedelta, datetime
+from PyQt5.QtChart import QChart,  QLineSeries, QChartView, QValueAxis, QDateTimeAxis,  QPieSeries, QScatterSeries
 
 class VCCommons(QChartView):
     def __init__(self):
@@ -27,7 +26,7 @@ class VCCommons(QChartView):
         
     @pyqtSlot()
     def on_actionSave_triggered(self):
-        filename="{} Chart.png".format(dtnaive2string(datetime.datetime.now(), type=eDtStrings.Filename))    
+        filename="{} Chart.png".format(dtnaive2string(datetime.now(), type=eDtStrings.Filename))    
         filename = QFileDialog.getSaveFileName(self, self.tr("Save File"), filename, self.tr("PNG Image (*.png)"))[0]
         if filename:
             self.save(filename)
@@ -94,11 +93,6 @@ class VCCommons(QChartView):
         pixmap=self.grab()
         pixmap.save(savefile, quality=100)
 
-
-class VCTemporalSeries2Axis(VCCommons):
-    pass
-
-
 class VCTemporalSeries(VCCommons):
     def __init__(self):
         VCCommons.__init__(self)
@@ -107,7 +101,7 @@ class VCTemporalSeries(VCCommons):
 
         #Axis cration
         self.axisX=QDateTimeAxis()
-        self.axisX.setTickCount(15);
+        self.axisX.setTickCount(8);
         self.axisX.setFormat("yyyy-MM");
         self.maxx=None
         self.maxy=None
@@ -120,8 +114,20 @@ class VCTemporalSeries(VCCommons):
         self.setRenderHint(QPainter.Antialiasing);
         
         self.series=[]
-        self.__ohclduration=eOHCLDuration.Day
+        self.popup=MyPopup()
+            
+    def appendScatterSeries(self, name,  currency=None):
+        """
+            currency is a Currency object
+        """
+        self.currency=currency
+        ls=QScatterSeries()
+        ls.setName(name)
+        self.series.append(ls)
+        return ls
 
+    def appendScatterSeriesData(self, ls, x, y):
+        self.appendTemporalSeriesData(ls, x, y)
     def setAxisFormat(self, axis,  min, max, type, zone=None):
         """
             type=0 #Value
@@ -139,14 +145,10 @@ class VCTemporalSeries(VCCommons):
         elif type==1:
             max=epochms2dtaware(max)#UTC aware
             min=epochms2dtaware(min)
-            if max-min<datetime.timedelta(days=1):
+            if max-min<timedelta(days=1):
                 axis.setFormat("hh:mm")
             else:
                 axis.setFormat("yyyy-MM-dd")
-
-    def setOHCLDuration(self, ohclduration):
-        self.__ohclduration=ohclduration
-
 
     def setAllowHideSeries(self, boolean):
         self._allowHideSeries=boolean
@@ -183,51 +185,29 @@ class VCTemporalSeries(VCCommons):
             self.maxx=x
         if x<self.minx:
             self.minx=x
-        
-    def appendCandlestickSeries(self, name, currency):
-        self.currency=currency
-        ls=QCandlestickSeries()
-        ls.setName(name)
-        ls.setIncreasingColor(QColor(Qt.green));
-        ls.setDecreasingColor(QColor(Qt.red));
-        self.series.append(ls)
-        return ls
-        
-    def appendCandlestickSeriesData(self, ls, ohcl):
-        x=dtaware2epochms(ohcl.datetime())
-        ls.append(QCandlestickSet(ohcl.open, ohcl.high, ohcl.low, ohcl.close, x ))
-        if self.maxy==None:
-            self.maxy=ohcl.high
-            self.miny=ohcl.low
-            self.maxx=x
-            self.minx=x
-        if ohcl.high>self.maxy:
-            self.maxy=ohcl.high
-        if ohcl.low<self.miny:
-            self.miny=ohcl.low     
-        if x>self.maxx:
-            self.maxx=x
-        if x<self.minx:
-            self.minx=x
-            
-    def appendScatterSeries(self, name,  currency=None):
-        """
-            currency is a Currency object
-        """
-        self.currency=currency
-        ls=QScatterSeries()
-        ls.setName(name)
-        self.series.append(ls)
-        return ls
 
-    def appendScatterSeriesData(self, ls, x, y):
-        self.appendTemporalSeriesData(ls, x, y)
+
         
     def mouseMoveEvent(self, event):
-        """
-            event is a QMouseEvent
-        """
-        pass
+        QChartView.mouseMoveEvent(self, event)
+        xVal = self.chart().mapToValue(event.pos()).x()
+        yVal = self.chart().mapToValue(event.pos()).y()
+
+        maxX = self.axisX.max().toMSecsSinceEpoch()
+        minX = self.axisX.min().toMSecsSinceEpoch()
+        maxY = self.axisY.max()
+        minY = self.axisY.min()
+        if xVal <= maxX and  xVal >= minX and yVal <= maxY and yVal >= minY:
+            self.popup.refresh(self, xVal, yVal)
+            self.popup.show()
+        else:
+            self.popup.hide()
+
+    ## Return the value of the serie in x
+    def series_value(self, serie, x):
+        for point in serie.pointsVector():
+            if point.x()>=x:
+                return point.y()
 
     @pyqtSlot()
     def on_marker_clicked(self):
@@ -339,3 +319,37 @@ class VCPie(VCCommons):
         self.serie.setPieStartAngle(90)
         self.serie.setPieEndAngle(450)
 
+
+class MyPopup(QWidget):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.parent=parent
+        
+    def refresh(self, vc, xVal, yVal):
+        self.vc=vc
+        self.xVal=xVal
+        self.yVal=yVal
+        
+        #Creating empy labels
+        if hasattr(self, 'lblTitles')==False:
+            self.labelXY=QLabel("XY")
+            self.lay = QVBoxLayout(self)
+            self.lay.addWidget(self.labelXY)
+            self.lblTitles=[]
+            self.lblValues=[]
+            for serie in self.vc.series:
+                title=QLabel()
+                value=QLabel()
+                self.lblTitles.append(title)
+                self.lblValues.append(value)
+                layh=QHBoxLayout(self)
+                layh.addWidget(title)
+                layh.addWidget(value)
+                self.lay.addLayout(layh)
+            self.setLayout(self.lay)
+
+        #Displaying values
+        self.labelXY.setText("X: {}, Y: {}".format(epochms2dtaware(self.xVal), self.yVal))
+        for i, serie in enumerate(self.vc.series):
+            self.lblTitles[i].setText(serie.name())
+            self.lblValues[i].setText(str(self.vc.series_value(serie, self.xVal)))
