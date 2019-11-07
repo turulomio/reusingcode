@@ -8,10 +8,10 @@ def menubox_manager_id_name(title, text, manager_id_name):
        options_s=options_s + " '{}' ''".format(o.name)
 
     try:
-        r=run("""dialog --clear --title "{}" --menu "{}" 40 51 4 {}""".format(title, text, options_s),shell=True, stderr=PIPE)
+        r=run("""dialog --clear --title "{}" --menu "{}" 40 51 20 {}""".format(title, text, options_s),shell=True, stderr=PIPE)
     except:
         return None
-    print(r.stderr)
+#    print(r.stderr)
     return manager_id_name.find_by_name(r.stderr.decode('UTF-8'))
 
 #manager=ObjectManager_With_IdName()
