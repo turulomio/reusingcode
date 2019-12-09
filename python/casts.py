@@ -23,7 +23,7 @@ def list2string(lista):
 def string2list_of_strings(s):
     arr=[]
     if s!="":
-        arrs=s.split(",")
+        arrs=s.split(", ")
         for a in arrs:
             arr.append(a[1:-1])
     return arr
