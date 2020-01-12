@@ -154,12 +154,15 @@ class Table2ODS(ODS_Write):
         if table.horizontalHeader().isHidden() and not table.verticalHeader().isHidden():
             coord=Coord("B1")
         elif not table.horizontalHeader().isHidden() and table.verticalHeader().isHidden():
+            print("A2")
             coord=Coord("A2")
+            topleft=Coord("A2") if table.rowCount()<21 else Coord("A2").addRow(table.rowCount()-1-20)
+            sheet.freezeAndSelect(coord, Coord("A2").addRow(table.rowCount()-1), topleft)
         elif not table.horizontalHeader().isHidden() and not table.verticalHeader().isHidden():
             coord=Coord("B2")
         elif table.horizontalHeader().isHidden() and table.verticalHeader().isHidden():
             coord=Coord("A1")
-        sheet.setSplitPosition(coord)
+
         #HH
         if not table.horizontalHeader().isHidden():
             for letter in range(table.columnCount()):
@@ -182,7 +185,6 @@ class Table2ODS(ODS_Write):
                 except:#Not a QTableWidgetItem or NOne
                     pass
         logging.debug("Items done")
-        sheet.setCursorPosition(coord.letter+ str(table.rowCount()+2))
         self.save()
 
     def itemtext2object(self, t):
