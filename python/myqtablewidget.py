@@ -158,24 +158,33 @@ class myQTableWidget(QTableWidget):
     ## @param lr is a list of rows (other list)
     ## @param decimals Integer or List of the size of the columns with the number of decimals to show. Default decimal==2. If Integer all columns has the same number of decimals
     ## @param datetimes with be converted to that timezone
-    def fillFromListOfRows(self,lr, decimals=2, zonename="UTC"):
-        self.lr=lr
+    def fillWithListOfRows(self,lr, decimals=2, zonename="UTC"):
         if decimals.__class__.__name__=="int":
-            decimals=[2]*len(self.lr)
-        for row in range(len(self.lr)):
-            for column in range(len(self.lr[row])):
-                o=self.lr[row][column]
-                if o.__class__.__name__ in ["int"]:
-                    self.setItem(row, column, qright(o))
-                elif o.__class__.__name__ in ["datetime"]:
-                    self.setItem(row, column, qdatetime(o,zonename))
-                elif o.__class__.__name__ in ["float","Decimal"]:
-                    self.setItem(row, column, qnumber(o,decimals[column]))
-                elif o.__class__.__name__ in ["Percentage","Money","Currency"]:
-                    self.setItem(row, column, o.qtablewidgetitem(decimals[column]))
-                else:
-                    self.setItem(row, column, qleft(o))
+            decimals=[decimals]*len(lr[0])
+        for row in range(len(lr)):
+            self.fillAppendingRow(lr[row], decimals, zonename)
 
+
+    ## If you don't want to add all rows at the same time you can fill appending row by row
+    ## @param rownumber is the row to be added in the table
+    def fillAppendingRow(self, rownumber, row, decimals=2, zonename="UTC"):
+        if hasattr(self, "lr")==False:#Create list if it doesn't exist
+            self.lr=[]
+        if decimals.__class__.__name__=="int":
+            decimals=[decimals]*len(row)
+        self.lr.append(row)
+        for column in range(len(row)):
+            o=row[column]
+            if o.__class__.__name__ in ["int"]:
+                self.setItem(rownumber, column, qright(o))
+            elif o.__class__.__name__ in ["datetime"]:
+                self.setItem(rownumber, column, qdatetime(o,zonename))
+            elif o.__class__.__name__ in ["float","Decimal"]:
+                self.setItem(rownumber, column, qnumber(o,decimals[column]))
+            elif o.__class__.__name__ in ["Percentage","Money","Currency"]:
+                self.setItem(rownumber, column, o.qtablewidgetitem(decimals[column]))
+            else:
+                self.setItem(rownumber, column, qleft(o))
 
 class Table2ODS(ODS_Write):
     def __init__(self, mem, filename, table, title):
