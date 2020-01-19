@@ -5,7 +5,7 @@
 from PyQt5.QtCore import Qt,  pyqtSlot
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem
-from .qtablewidgetitems import qright, qleft, qnumber
+from .qtablewidgetitems import qright, qleft, qnumber, qdatetime
 from officegenerator import ODS_Write, Currency, Percentage,  Coord
 import datetime
 import logging
@@ -157,7 +157,8 @@ class myQTableWidget(QTableWidget):
     ## Allowed objects, int, float, text, Currency, Porcentage
     ## @param lr is a list of rows (other list)
     ## @param decimals Integer or List of the size of the columns with the number of decimals to show. Default decimal==2. If Integer all columns has the same number of decimals
-    def fillFromListOfRows(self,lr, decimals=2):
+    ## @param datetimes with be converted to that timezone
+    def fillFromListOfRows(self,lr, decimals=2, zonename="UTC"):
         self.lr=lr
         if decimals.__class__.__name__=="int":
             decimals=[2]*len(self.lr)
@@ -166,6 +167,8 @@ class myQTableWidget(QTableWidget):
                 o=self.lr[row][column]
                 if o.__class__.__name__ in ["int"]:
                     self.setItem(row, column, qright(o))
+                elif o.__class__.__name__ in ["datetime"]:
+                    self.setItem(row, column, qdatetime(o,zonename))
                 elif o.__class__.__name__ in ["float","Decimal"]:
                     self.setItem(row, column, qnumber(o,decimals[column]))
                 elif o.__class__.__name__ in ["Percentage","Money","Currency"]:
