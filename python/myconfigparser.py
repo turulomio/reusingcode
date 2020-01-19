@@ -1,5 +1,5 @@
 from configparser import ConfigParser
-from os import path
+from os import path, makedirs
 
 class MyConfigParser:
     def __init__(self, filename):
@@ -22,6 +22,7 @@ class MyConfigParser:
         self.config.set(section, option, str(value))
 
     def save(self):
+        makedirs(path.dirname(self.filename), exist_ok=True)
         with open(self.filename, 'w') as f:
             self.config.write(f)
 
