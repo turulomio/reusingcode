@@ -6,23 +6,31 @@ class wdgDistributeAmountInteger(QWidget):
         QWidget.__init__(self)
         self.parent=parent
 
-        self.lbl=QLabel(self)
-        self.lbl.setText(self.tr("Distribute amount"))
+        self.lblA=QLabel(self)
+        self.lblB=QLabel(self)
+        self.lblC=QLabel(self)
         self.setup_qspinboxes()
 
         self.lay = QHBoxLayout(self)
-        self.lay.addWidget(self.lbl)
+        self.lay.addWidget(self.lblA)
         self.lay.addWidget(self.spnA)
+        self.lay.addWidget(self.lblB)
         self.lay.addWidget(self.spnB)
+        self.lay.addWidget(self.lblC)
         self.lay.addWidget(self.spnC)
         self.setLayout(self.lay)
 
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(1)
-        self.lbl.setSizePolicy(sizePolicy)
+        #sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        #sizePolicy.setHorizontalStretch(1)
+        #self.lbl.setSizePolicy(sizePolicy)
         
         for spn in [self.spnA, self.spnB, self.spnC]:
             spn.setAlignment(Qt.AlignRight)
+
+    def setLabels(self,a,b,c):
+        self.lblA.setText(a)
+        self.lblB.setText(b)
+        self.lblC.setText(c)
 
     def setup_qspinboxes(self):
         self.spnA=QSpinBox(self)
@@ -55,7 +63,8 @@ if __name__ == '__main__':
     w.setSuffix(" %")
     w.setMaximum(100)
     w.setAmount(100)
-    w.setWindowTitle('Simple')
+    w.setLabels("Carbohydrate","Fat","Protein")
+    w.setWindowTitle('wdgDistributeAmount example')
     w.show()
 
     exit(app.exec_())
