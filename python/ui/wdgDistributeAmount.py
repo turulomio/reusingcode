@@ -68,4 +68,3 @@ if __name__ == '__main__':
     w.show()
 
     exit(app.exec_())
-    
