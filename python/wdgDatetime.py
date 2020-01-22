@@ -134,8 +134,6 @@ class wdgDatetime(QWidget, Ui_wdgDatetime):
 
 
 if __name__ == '__main__':
-    from objects.command import command
-    command
     from sys import exit
     from PyQt5.QtWidgets import QApplication
     app = QApplication([])
