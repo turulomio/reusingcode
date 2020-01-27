@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QLabel, QDialog, QDialogButtonBox, QWidget, QTableWidgetItem, QVBoxLayout, QToolButton, QHBoxLayout
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QLabel, QComboBox, QDialog, QDialogButtonBox, QWidget, QTableWidgetItem, QVBoxLayout, QToolButton, QHBoxLayout
 from logging import debug
 from .myqtablewidget import myQTableWidget
 #from .. myqwidgets import qmessagebox
@@ -9,7 +9,7 @@ class frmManagerSelector(QDialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent=None)
         self.bb=QDialogButtonBox(self)
-        self.setManagerType()
+        self.setWidgetType()
         
         font = QFont()
         font.setPointSize(14)
@@ -23,24 +23,24 @@ class frmManagerSelector(QDialog):
         
         lay = QVBoxLayout(self)
         lay.addWidget(self.lbl)
-        lay.addWidget(self.manager)
+        lay.addWidget(self.widget)
         lay.addWidget(self.bb)
         
     ## Override this to change manager
-    def setManagerType(self):
-        self.manager=wdgManagerSelector(self)
+    def setWidgetType(self):
+        self.widget=wdgManagerSelector(self)
         
     def setManagers(self, mem, section,  objectname, manager, selected, *initparams):
         self.mem=mem
         self.section=section
         self.objectname=objectname
-        self.manager.setManagers(mem, section, objectname, manager, selected, *initparams)
+        self.widget.setManagers(mem, section, objectname, manager, selected, *initparams)
         self.resize(self.mem.settings.value("{}/{}_dialog_size".format(self.section, self.objectname), QSize(800, 600)))
 
     def exec_(self):
         QDialog.exec_(self)
         self.mem.settings.setValue("{}/{}_dialog_size".format(self.section, self.objectname), self.size())
-        debug("Selected objects: {}".format(str(self.manager.selected.arr)))
+        debug("Selected objects: {}".format(str(self.widget.selected.arr)))
 
     def setLabel(self, s):
         self.lbl.setText(s)
@@ -93,12 +93,15 @@ class wdgManagerSelector(QWidget):
         self.tblSelected.settings(self.mem, self.section, "{}_tblSelected".format(self.objectname))
         
         self.manager=manager.clone(*initparams)#Clone manager to delete safely objects
-        self.selected=selected
-        
+
         #removes selected objects from manager
-        for o in self.selected.arr:
-            self.manager.remove(o)
-        
+        if selected is None:
+            self.selected=manager.__class__(*initparams)
+        else:
+            self.selected=selected
+            for o in self.selected.arr:
+                self.manager.remove(o)
+
         self._load_tbl()
         self._load_tblSelected()
         self.cmdDown.released.connect(self.on_cmdDown_released)
@@ -185,6 +188,46 @@ class wdgManagerSelector(QWidget):
     def on_tblSelected_cellDoubleClicked(self, row, column):
         self.on_cmdLeft_released()
         
+        
+## Shows selected objects in a QComboBox. You can press a button to open frmManagerSelector
+class cmbManagerSelector(QWidget):
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent=None)
+        self.combo=QComboBox(self)
+        self.cmd=QToolButton(self)
+        self.cmd.setToolTip(self.tr("Press to open a manager selector"))
+        
+        lay = QHBoxLayout(self)
+        lay.addWidget(self.combo)
+        lay.addWidget(self.cmd)
+        
+        self.frm=frmManagerSelector(self)
+        
+        self.cmd.released.connect(self.on_cmd_released)
+        self.setIcons()
+        
+    def on_cmd_released(self):
+        self.frm.exec_()
+        self.combo.clear()
+        for o in self.frm.widget.selected.arr:
+            self.combo.addItem(str(o))
+            
+    ## Set widget icons from resources strings
+    def setIcons(self, rsButton=":search"):
+        if rsButton is not None:
+            self.cmd.setIcon(QIcon(rsButton))
+        
+
+    def setManagers(self, mem, section, objectname, manager, selected,  *initparams):
+        self.mem=mem
+        self.frm.setManagers(mem, section, objectname, manager, selected, *initparams)
+        if selected!=None:
+            for o in selected.arr:
+                self.combo.addItem(str(o))
+
+    ## Returns the selected manager
+    def selected(self):
+        return self.frm.widget.selected
 
 if __name__ == '__main__':
     from libmanagers import ObjectManager_With_IdName
@@ -214,9 +257,11 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication([])
 
-    w = frmManagerSelector()
-    w.manager.hideUpDown()
+    w = cmbManagerSelector()
+    w.frm.widget.hideUpDown()
     w.setManagers(mem,"frmSelectorExample", "frmSelector", manager, selected)
     w.move(300, 300)
     w.setWindowTitle('frmSelector example')
-    w.exec_()
+    w.show()
+    
+    app.exec()
