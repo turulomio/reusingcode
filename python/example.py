@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
-from os import system
+from os import system, makedirs
+from shutil import rmtree
 
 def command(s):
     print (s)
@@ -14,17 +15,20 @@ def wdgDatetime():
     command("python /tmp/{0}.py".format(args.example))
 
 def frmSelector():
-    command("cp ui/{0}.py /tmp/{0}.py".format(args.example))
-    command("cp myqwidgets.py /tmp/myqwidgets.py")
-    command("cp myqtablewidget.py /tmp/myqtablewidget.py")
-    command("cp libmanagers.py /tmp/libmanagers.py")
-    command("cp datetime_functions.py /tmp/datetime_functions.py")
-    command("sed -i -e 's/\.Ui/Ui/' /tmp/{0}.py".format(args.example))
-    command("sed -i -e 's/ \.\. / /' /tmp/{0}.py".format(args.example))
-    command("sed -i -e 's/ \.\. / /' /tmp/myqtablewidget.py")
-    command("sed -i -e 's/\.datetime_functions/datetime_functions/' /tmp/libmanagers.py")
-    command("pyuic5 ui/{0}.ui -o /tmp/Ui_{0}.py".format(args.example))
-    command("python /tmp/{0}.py".format(args.example))
+    dir="/tmp/reusingcode_frmselector"
+    
+    rmtree(dir, ignore_errors=True)
+    makedirs(dir, exist_ok=True)
+    command("cp ui/{0}.py {1}/{0}.py".format(args.example, dir))
+    command("cp ui/myqtablewidget.py {0}".format(dir))
+    command("cp libmanagers.py {0}".format(dir))
+    command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
+    command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
+    command("sed -i -e 's/ \.\. / /' {1}/{0}.py".format(args.example, dir))
+    command("sed -i -e 's/\.myqtablewidget/myqtablewidget/' {0}/frmSelector.py".format(dir))
+    command("sed -i -e 's/ \.\. / /' {0}/myqtablewidget.py".format(dir))
+    command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
+    command("python {1}/{0}.py".format(args.example, dir))
 
 
 parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
