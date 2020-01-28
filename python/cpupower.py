@@ -3,6 +3,9 @@
 
 from os import path
 
+def is_cpufreq_configured():
+    return path.exists("/sys/devices/system/cpu/cpu0/cpufreq/")
+
 def sys_get_cpu_max_freq():
     with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") as f:
         data = f.read()
@@ -50,6 +53,8 @@ def sys_set_cpu_turbo(boolean):
 if __name__ == '__main__':
     sleeptime=2
     from time import sleep
+    
+    print("Is kernel cpufreq configured?:", is_cpufreq_configured())
 
     print("Max cpu freq is {}".format(sys_get_cpu_max_freq()))
 
