@@ -7,18 +7,22 @@ def command(s):
     system(s)
 
 def wdgDatetime():
-    command("cp {0}.py /tmp/{0}.py".format(args.example))
-    command("cp datetime_functions.py /tmp/datetime_functions.py")
-    command("sed -i -e 's/\.Ui/Ui/' /tmp/{0}.py".format(args.example))
-    command("sed -i -e 's/ \.\. / /' /tmp/{0}.py".format(args.example))
-    command("pyuic5 {0}.ui -o /tmp/Ui_{0}.py".format(args.example))
-    command("python /tmp/{0}.py".format(args.example))
+    dir="/tmp/reusingcode_wdgdatetime"
+    rmtree(dir, ignore_errors=True)
+    makedirs(dir, exist_ok=True)
+
+    command("cp ui/{0}.py {1}/{0}.py".format(args.example,dir))
+    command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
+    command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
+    command("sed -i -e 's/ \.\. / /' {1}/{0}.py".format(args.example, dir))
+    command("pyuic5 ui/{0}.ui -o {1}/Ui_{0}.py".format(args.example, dir))
+    command("python {1}/{0}.py".format(args.example, dir))
 
 def frmSelector():
     dir="/tmp/reusingcode_frmselector"
-    
     rmtree(dir, ignore_errors=True)
     makedirs(dir, exist_ok=True)
+
     command("cp ui/{0}.py {1}/{0}.py".format(args.example, dir))
     command("cp ui/myqtablewidget.py {0}".format(dir))
     command("cp libmanagers.py {0}".format(dir))
