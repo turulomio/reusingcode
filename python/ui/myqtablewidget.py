@@ -3,7 +3,7 @@
 
 from PyQt5.QtCore import Qt,  pyqtSlot, QObject
 from PyQt5.QtGui import QKeySequence, QColor, QIcon
-from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QAction, QMenu
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QAction, QMenu, QToolButton
 from .. datetime_functions import dtaware2string, dtaware_changes_tz, time2string
 from officegenerator import ODS_Write, Currency, Percentage,  Coord
 import logging
@@ -219,34 +219,59 @@ class wdgTable(QWidget):
         QWidget.__init__(self, parent)
         self.parent=parent
         self.lay=QVBoxLayout()
-        self.hlay=QHBoxLayout()
+        self.laySearch=QHBoxLayout()
         self.lbl=QLabel()
         self.table=myQTableWidget()
         self.lbl.setText(self.tr("Add a string to search in table"))
-        self.txt=QLineEdit()
-        self.hlay.addWidget(self.lbl)
-        self.hlay.addWidget(self.txt)
+        self.lbl.hide()
+        self.txtSearch=QLineEdit()
+        self.txtSearch.hide()
+        self.txtSearch.textChanged.connect(self.on_txt_textChanged)
+        self.cmdCloseSearch=QToolButton()
+        self.cmdCloseSearch.hide()
+        self.cmdCloseSearch.released.connect(self.on_cmdCloseSearch_released)
+        self.laySearch.addWidget(self.lbl)
+        self.laySearch.addWidget(self.txtSearch)
+        self.laySearch.addWidget(self.cmdCloseSearch)
         self.lay.addWidget(self.table)
-        self.lay.addLayout(self.hlay)
+        self.lay.addLayout(self.laySearch)
         self.setLayout(self.lay)
         
         self.actionExport=QAction(self.tr("Export to Libreoffice Calc"))
         self.actionExport.triggered.connect(self.on_actionExport_triggered)
+        
+        self.actionSearch=QAction(self.tr("Search in table"))
+        self.actionSearch.triggered.connect(self.on_actionSearch_triggered)
+        self.actionSearch.setShortcut(Qt.CTRL + Qt.Key_F)
         
     ## @param rsActionExport String ":/xulpymoney/save.png" for example
     def setIcons(self, rsActionExport=None):
         if rsActionExport is not None:
             self.actionExport.setIcon(QIcon(rsActionExport))
             
+    def on_cmdCloseSearch_released(self):
+        self.txtSearch.setText("")
+        self.lbl.hide()
+        self.txtSearch.hide()
+        self.cmdCloseSearch.hide()
+            
     def on_actionExport_triggered(self):
         filename = QFileDialog.getSaveFileName(self, self.tr("Save File"), "table.ods", self.tr("Libreoffice calc (*.ods)"))[0]
         if filename:
             Table2ODS(self.mem,filename, self, "My table")
             
+    def on_actionSearch_triggered(self):
+        self.lbl.show()
+        self.txtSearch.show()
+        self.cmdCloseSearch.show()
+        self.txtSearch.setFocus()
+            
     ## Returns a qmenu to be used in other qmenus
     def qmenu(self, title="Table options"):
         menu=QMenu(self.tr(title))
         menu.addAction(self.actionExport)
+        menu.addSeparator()
+        menu.addAction(self.actionSearch)
         menu.addSeparator()
         order=QMenu(self.tr("Order by"))
         for action in self.table.orderby_actions:
@@ -255,6 +280,17 @@ class wdgTable(QWidget):
         menu.addMenu(order)     
         return menu
         
+    def on_txt_textChanged(self, text):
+        for row in range(self.table.rowCount()):
+            found=False
+            for column in range(self.table.columnCount()):
+                if self.table.item(row,column).text().lower().find(text.lower())>=0:
+                    found=True
+                    break
+            if found==False:
+                self.table.hideRow(row)
+            else:
+                self.table.showRow(row)
 
 class Table2ODS(ODS_Write):
     def __init__(self, mem, filename, table, title):
