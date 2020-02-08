@@ -10,14 +10,242 @@ import logging
 from datetime import datetime, date,  timedelta
 from decimal import Decimal
 
-class myQTableWidget(QTableWidget):
+#class myQTableWidget(QTableWidget):
+#    def __init__(self, parent=None):
+#        QTableWidget.__init__(self, parent)
+#        self.parent=parent
+#        self.mem=None
+#        self.sectionname=None
+#        self._save_settings=True
+#        self.setAlternatingRowColors(True)
+#        self.saved_printed=False#To avoid printing a lot of times
+#        self._last_height=None
+#        
+#        
+#    def setVerticalHeaderHeight(self, height):
+#        """height, if null default.
+#        Must be after settings"""
+#        if height==None:
+#            self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+#            self._last_height=None
+#        else:
+#            self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+#            self.verticalHeader().setDefaultSectionSize(height) 
+#            self._last_height=height
+#
+#    def setSaveSettings(self, state):
+#        """Used when i don't want my columns with being saved"""
+#        self._save_settings=state
+#
+#    def sectionResized(self, logicalIndex, oldSize, newSize):
+#        modifiers = QApplication.keyboardModifiers()
+#        if modifiers == Qt.ShiftModifier:
+#            for i in range(self.columnCount()):
+#                self.setColumnWidth(i, newSize)
+#        elif modifiers == Qt.ControlModifier:
+#            self.resizeRowsToContents()
+#            self.resizeColumnsToContents()
+#        self.save()
+#            
+#            
+#    def save(self):
+#        if self._save_settings==True:
+#            self.settings.setValue("{}/{}_horizontalheader_state".format(self.sectionname, self.objectName()), self.horizontalHeader().saveState() )
+#            if self.saved_printed==False: 
+#                print("Saved {}/{}_horizontalheader_state".format(self.sectionname, self.objectName()))
+#                self.saved_printed=True
+#        
+#    def settings(self, mem, sectionname,  objectname=None):
+#        """objectname used for dinamic tables"""
+#        self.mem=mem
+#        self.setVerticalHeaderHeight(int(self.settings.value("myQTableWidget/rowheight", 24)))
+#        self.sectionname=sectionname
+#        if objectname!=None:
+#            self.setObjectName(objectname)
+#
+#    def applySettings(self):
+#        """settings must be defined before"""
+#        self.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+#        self.horizontalHeader().sectionResized.connect(self.sectionResized)
+#        state=self.settings.value("{}/{}_horizontalheader_state".format(self.sectionname, self.objectName()))
+#        if state:
+#            self.horizontalHeader().restoreState(state)
+#        
+#
+#    def clear(self):
+#        """Clear table"""
+#        self.setRowCount(0)
+#        self.clearContents()
+#
+#    def verticalScrollbarAction(self,  action):
+#        """Resizes columns if column width is less than table hint"""
+#        for i in range(self.columnCount()):
+#            if self.sizeHintForColumn(i)>self.columnWidth(i):
+#                self.setColumnWidth(i, self.sizeHintForColumn(i))
+#
+#    @pyqtSlot()
+#    def keyPressEvent(self, event):
+#        if  event.matches(QKeySequence.ZoomIn) and self._last_height!=None:
+#            height=int(self.settings.value("myQTableWidget/rowheight", 24))
+#            self.settings.setValue("myQTableWidget/rowheight", height+1)
+#            logging.info("Setting myQTableWidget/rowheight set to {}".format(self.settings.value("myQTableWidget/rowheight", 24)))
+#            self.setVerticalHeaderHeight(int(self.settings.value("myQTableWidget/rowheight", 24)))
+#        elif  event.matches(QKeySequence.ZoomOut) and self._last_height!=None:
+#            height=int(self.settings.value("myQTableWidget/rowheight", 24))
+#            self.settings.setValue("myQTableWidget/rowheight", height-1)
+#            ("Setting myQTableWidget/rowheight set to {}".format(self.settings.value("myQTableWidget/rowheight", 24)))
+#            self.setVerticalHeaderHeight(int(self.settings.value("myQTableWidget/rowheight", 24)))
+#        elif event.matches(QKeySequence.Print):
+#            filename = QFileDialog.getSaveFileName(self, self.tr("Save File"), "table.ods", self.tr("Libreoffice calc (*.ods)"))[0]
+#            if filename:
+#                Table2ODS(self.mem,filename, self, "My table")
+#
+#
+#    def on_orderby_action_triggered(self, action):
+#        action=QObject.sender(self)#Busca el objeto que ha hecho la signal en el slot en el que está conectado
+#        print(action.text())
+#        action_index=self.data_header_horizontal.index(action.text())#Search the position in the headers of the action Text
+#        attribute=self.attribute_names[action_index]
+#        self.manager.arr=sorted(self.manager.arr, key=lambda c: getattr(c, attribute),  reverse=False)     
+#        self.setDataFromManager(self.data_header_horizontal, self.data_header_vertical, self.manager, self.attribute_names)
+#
+#    ## Adds a horizontal header array , a vertical header array and a data array
+#    ##
+#    ## Automatically set alignment
+#    def setData(self, header_horizontal, header_vertical, data):
+#        # Creates order actions here after creating data
+#        self.orderby_actions=[]
+#        for header in header_horizontal:
+#            action=QAction(header)
+#            self.orderby_actions.append(action)
+#            action.triggered.connect(self.on_orderby_action_triggered)
+#        
+#        # Headers
+#        self.data_header_horizontal=header_horizontal
+#        self.data_header_vertical=header_vertical
+#        self.data=data
+#        self.setColumnCount(len(self.data_header_horizontal))
+#        for i in range(len(self.data_header_horizontal)):
+#            self.setHorizontalHeaderItem(i, QTableWidgetItem(self.data_header_horizontal[i]))
+#        # Data
+#        self.applySettings()
+#        self.clearContents()
+#        self.setRowCount(len(self.data))        
+#        for row in range(len(self.data)):
+#            for column in range(len(self.data_header_horizontal)):
+#                self.setItem(row, column, self.object2qtablewidgetitem(self.data[row][column]))
+#
+#    ## Adds a horizontal header array , a vertical header array and a data array
+#    ##
+#    ## Automatically set alignment
+#    ## @param manager Manager object from libmanagers
+#    ## @param object_attribute_names List of Strings with name of the object attributes
+#    def setDataFromManager(self, header_horizontal, header_vertical, manager, object_attribute_names):
+#        self.attribute_names=object_attribute_names
+#        self.manager=manager
+#        data=[]
+#        for o in manager.arr:
+#            row=[]
+#            for name in object_attribute_names:
+#                row.append(getattr(o, name))
+#            data.append(row)
+#        self.setData(header_horizontal, header_vertical, data)
+#                    
+#    ## Converts a objecct class to a qtablewidgetitem
+#    def object2qtablewidgetitem(self, o):
+#        if o.__class__ in [int,  float, Decimal]:
+#            return qright(o)
+#        else:
+#            return qleft(o)
+#
+#    ## Returns a list of strings with the horizontal headers
+#    def listHorizontalHeaders(self):
+#        header=[]
+#        for i in range(self.horizontalHeader().count()):
+#            header.append(self.horizontalHeaderItem(i).text())
+#        return header
+#
+#    ## Returns a list of strings with the horizontal headers
+#    def listVerticalHeaders(self):
+#        header=[]
+#        for i in range(self.verticalHeader().count()):
+#            header.append(self.verticalHeaderItem(i).text())
+#        return header
+#
+#    ## Returns a lisf of rows with the text of the 
+#    def listText(self):
+#        data=[]
+#        for i in range(self.rowCount()):
+#            row=[]
+#            for column in range(self.columnCount()):
+#                data.append(self.item(row,column).text())
+#        return data
+#
+#    ## Fills table from a lr of rows
+#    ## Allowed objects, int, float, text, Currency, Porcentage
+#    ## @param lr is a list of rows (other list)
+#    ## @param decimals Integer or List of the size of the columns with the number of decimals to show. Default decimal==2. If Integer all columns has the same number of decimals
+#    ## @param datetimes with be converted to that timezone
+#    def fillWithListOfRows(self,lr, decimals=2, zonename="UTC"):
+#        if decimals.__class__.__name__=="int":
+#            decimals=[decimals]*len(lr[0])
+#        for row in range(len(lr)):
+#            self.fillAppendingRow(row, lr[row], decimals, zonename)
+#
+#
+#    ## If you don't want to add all rows at the same time you can fill appending row by row
+#    ## @param rownumber is the row to be added in the table
+#    def fillAppendingRow(self, rownumber, row, decimals=2, zonename="UTC"):
+#        if hasattr(self, "lr")==False:#Create list if it doesn't exist
+#            self.lr=[]
+#        if decimals.__class__.__name__=="int":
+#            decimals=[decimals]*len(row)
+#        self.lr.append(row)
+#        for column in range(len(row)):
+#            o=row[column]
+#            if o.__class__.__name__ in ["int"]:
+#                self.setItem(rownumber, column, qright(o))
+#            elif o.__class__.__name__ in ["datetime"]:
+#                self.setItem(rownumber, column, qdatetime(o,zonename))
+#            elif o.__class__.__name__ in ["float","Decimal"]:
+#                self.setItem(rownumber, column, qnumber(o,decimals[column]))
+#            elif o.__class__.__name__ in ["Percentage","Money","Currency"]:
+#                self.setItem(rownumber, column, o.qtablewidgetitem(decimals[column]))
+#            else:
+#                self.setItem(rownumber, column, qleft(o))
+                
+class myQTableWidget(QWidget):
     def __init__(self, parent=None):
-        QTableWidget.__init__(self, parent)
+        QWidget.__init__(self, parent)
         self.parent=parent
-        self.mem=None
+        self.lay=QVBoxLayout()
+        self.laySearch=QHBoxLayout()
+        self.lbl=QLabel()
+        self.table=QTableWidget()
+        self.lbl.setText(self.tr("Add a string to search in table"))
+        self.lbl.hide()
+        self.txtSearch=QLineEdit()
+        self.txtSearch.hide()
+        self.txtSearch.textChanged.connect(self.on_txt_textChanged)
+        self.cmdCloseSearch=QToolButton()
+        self.cmdCloseSearch.hide()
+        self.cmdCloseSearch.released.connect(self.on_cmdCloseSearch_released)
+        self.laySearch.addWidget(self.lbl)
+        self.laySearch.addWidget(self.txtSearch)
+        self.laySearch.addWidget(self.cmdCloseSearch)
+        self.lay.addWidget(self.table)
+        self.lay.addLayout(self.laySearch)
+        self.setLayout(self.lay)
+        
+        self.actionExport=QAction(self.tr("Export to Libreoffice Calc"))
+        self.actionExport.triggered.connect(self.on_actionExport_triggered)
+        
+        self.actionSearch=QAction(self.tr("Search in table"))
+        self.actionSearch.triggered.connect(self.on_actionSearch_triggered)
+        self.actionSearch.setShortcut(Qt.CTRL + Qt.Key_F)
         self.sectionname=None
         self._save_settings=True
-        self.setAlternatingRowColors(True)
+        self.table.setAlternatingRowColors(True)
         self.saved_printed=False#To avoid printing a lot of times
         self._last_height=None
         
@@ -26,11 +254,11 @@ class myQTableWidget(QTableWidget):
         """height, if null default.
         Must be after settings"""
         if height==None:
-            self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+            self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
             self._last_height=None
         else:
-            self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
-            self.verticalHeader().setDefaultSectionSize(height) 
+            self.table.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+            self.table.verticalHeader().setDefaultSectionSize(height) 
             self._last_height=height
 
     def setSaveSettings(self, state):
@@ -40,61 +268,61 @@ class myQTableWidget(QTableWidget):
     def sectionResized(self, logicalIndex, oldSize, newSize):
         modifiers = QApplication.keyboardModifiers()
         if modifiers == Qt.ShiftModifier:
-            for i in range(self.columnCount()):
-                self.setColumnWidth(i, newSize)
+            for i in range(self.table.columnCount()):
+                self.table.setColumnWidth(i, newSize)
         elif modifiers == Qt.ControlModifier:
-            self.resizeRowsToContents()
-            self.resizeColumnsToContents()
+            self.table.resizeRowsToContents()
+            self.table.resizeColumnsToContents()
         self.save()
             
             
     def save(self):
         if self._save_settings==True:
-            self.mem.settings.setValue("{}/{}_horizontalheader_state".format(self.sectionname, self.objectName()), self.horizontalHeader().saveState() )
+            self.settings.setValue("{}/{}_horizontalheader_state".format(self.sectionname, self.objectName()), self.table.horizontalHeader().saveState() )
             if self.saved_printed==False: 
-                print("Saved {}/{}_horizontalheader_state".format(self.sectionname, self.objectName()))
+                print("Saved {}/{}_horizontalheader_state".format(self.sectionname, self.table.objectName()))
                 self.saved_printed=True
         
-    def settings(self, mem, sectionname,  objectname=None):
+    def settings(self, settings, sectionname,  objectname=None):
         """objectname used for dinamic tables"""
-        self.mem=mem
-        self.setVerticalHeaderHeight(int(self.mem.settings.value("myQTableWidget/rowheight", 24)))
+        self.settings=settings
+        self.setVerticalHeaderHeight(int(self.settings.value("myQTableWidget/rowheight", 24)))
         self.sectionname=sectionname
         if objectname!=None:
             self.setObjectName(objectname)
 
     def applySettings(self):
         """settings must be defined before"""
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.horizontalHeader().sectionResized.connect(self.sectionResized)
-        state=self.mem.settings.value("{}/{}_horizontalheader_state".format(self.sectionname, self.objectName()))
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.table.horizontalHeader().sectionResized.connect(self.sectionResized)
+        state=self.settings.value("{}/{}_horizontalheader_state".format(self.sectionname, self.objectName()))
         if state:
-            self.horizontalHeader().restoreState(state)
+            self.table.horizontalHeader().restoreState(state)
         
 
     def clear(self):
         """Clear table"""
-        self.setRowCount(0)
-        self.clearContents()
+        self.table.setRowCount(0)
+        self.table.clearContents()
 
     def verticalScrollbarAction(self,  action):
         """Resizes columns if column width is less than table hint"""
-        for i in range(self.columnCount()):
-            if self.sizeHintForColumn(i)>self.columnWidth(i):
-                self.setColumnWidth(i, self.sizeHintForColumn(i))
+        for i in range(self.table.columnCount()):
+            if self.table.sizeHintForColumn(i)>self.table.columnWidth(i):
+                self.table.setColumnWidth(i, self.table.sizeHintForColumn(i))
 
     @pyqtSlot()
     def keyPressEvent(self, event):
         if  event.matches(QKeySequence.ZoomIn) and self._last_height!=None:
-            height=int(self.mem.settings.value("myQTableWidget/rowheight", 24))
-            self.mem.settings.setValue("myQTableWidget/rowheight", height+1)
-            logging.info("Setting myQTableWidget/rowheight set to {}".format(self.mem.settings.value("myQTableWidget/rowheight", 24)))
-            self.setVerticalHeaderHeight(int(self.mem.settings.value("myQTableWidget/rowheight", 24)))
+            height=int(self.settings.value("myQTableWidget/rowheight", 24))
+            self.settings.setValue("myQTableWidget/rowheight", height+1)
+            logging.info("Setting myQTableWidget/rowheight set to {}".format(self.settings.value("myQTableWidget/rowheight", 24)))
+            self.table.setVerticalHeaderHeight(int(self.settings.value("myQTableWidget/rowheight", 24)))
         elif  event.matches(QKeySequence.ZoomOut) and self._last_height!=None:
-            height=int(self.mem.settings.value("myQTableWidget/rowheight", 24))
-            self.mem.settings.setValue("myQTableWidget/rowheight", height-1)
-            ("Setting myQTableWidget/rowheight set to {}".format(self.mem.settings.value("myQTableWidget/rowheight", 24)))
-            self.setVerticalHeaderHeight(int(self.mem.settings.value("myQTableWidget/rowheight", 24)))
+            height=int(self.settings.value("myQTableWidget/rowheight", 24))
+            self.settings.setValue("myQTableWidget/rowheight", height-1)
+            ("Setting myQTableWidget/rowheight set to {}".format(self.settings.value("myQTableWidget/rowheight", 24)))
+            self.table.setVerticalHeaderHeight(int(self.settings.value("myQTableWidget/rowheight", 24)))
         elif event.matches(QKeySequence.Print):
             filename = QFileDialog.getSaveFileName(self, self.tr("Save File"), "table.ods", self.tr("Libreoffice calc (*.ods)"))[0]
             if filename:
@@ -124,16 +352,16 @@ class myQTableWidget(QTableWidget):
         self.data_header_horizontal=header_horizontal
         self.data_header_vertical=header_vertical
         self.data=data
-        self.setColumnCount(len(self.data_header_horizontal))
+        self.table.setColumnCount(len(self.data_header_horizontal))
         for i in range(len(self.data_header_horizontal)):
-            self.setHorizontalHeaderItem(i, QTableWidgetItem(self.data_header_horizontal[i]))
+            self.table.setHorizontalHeaderItem(i, QTableWidgetItem(self.data_header_horizontal[i]))
         # Data
         self.applySettings()
-        self.clearContents()
-        self.setRowCount(len(self.data))        
+        self.table.clearContents()
+        self.table.setRowCount(len(self.data))        
         for row in range(len(self.data)):
             for column in range(len(self.data_header_horizontal)):
-                self.setItem(row, column, self.object2qtablewidgetitem(self.data[row][column]))
+                self.table.setItem(row, column, self.object2qtablewidgetitem(self.data[row][column]))
 
     ## Adds a horizontal header array , a vertical header array and a data array
     ##
@@ -161,24 +389,24 @@ class myQTableWidget(QTableWidget):
     ## Returns a list of strings with the horizontal headers
     def listHorizontalHeaders(self):
         header=[]
-        for i in range(self.horizontalHeader().count()):
-            header.append(self.horizontalHeaderItem(i).text())
+        for i in range(self.table.horizontalHeader().count()):
+            header.append(self.table.horizontalHeaderItem(i).text())
         return header
 
     ## Returns a list of strings with the horizontal headers
     def listVerticalHeaders(self):
         header=[]
-        for i in range(self.verticalHeader().count()):
-            header.append(self.verticalHeaderItem(i).text())
+        for i in range(self.table.verticalHeader().count()):
+            header.append(self.table.verticalHeaderItem(i).text())
         return header
 
     ## Returns a lisf of rows with the text of the 
     def listText(self):
         data=[]
-        for i in range(self.rowCount()):
+        for i in range(self.table.rowCount()):
             row=[]
-            for column in range(self.columnCount()):
-                data.append(self.item(row,column).text())
+            for column in range(self.table.columnCount()):
+                data.append(self.table.item(row,column).text())
         return data
 
     ## Fills table from a lr of rows
@@ -213,37 +441,6 @@ class myQTableWidget(QTableWidget):
                 self.setItem(rownumber, column, o.qtablewidgetitem(decimals[column]))
             else:
                 self.setItem(rownumber, column, qleft(o))
-                
-class wdgTable(QWidget):
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        self.parent=parent
-        self.lay=QVBoxLayout()
-        self.laySearch=QHBoxLayout()
-        self.lbl=QLabel()
-        self.table=myQTableWidget()
-        self.lbl.setText(self.tr("Add a string to search in table"))
-        self.lbl.hide()
-        self.txtSearch=QLineEdit()
-        self.txtSearch.hide()
-        self.txtSearch.textChanged.connect(self.on_txt_textChanged)
-        self.cmdCloseSearch=QToolButton()
-        self.cmdCloseSearch.hide()
-        self.cmdCloseSearch.released.connect(self.on_cmdCloseSearch_released)
-        self.laySearch.addWidget(self.lbl)
-        self.laySearch.addWidget(self.txtSearch)
-        self.laySearch.addWidget(self.cmdCloseSearch)
-        self.lay.addWidget(self.table)
-        self.lay.addLayout(self.laySearch)
-        self.setLayout(self.lay)
-        
-        self.actionExport=QAction(self.tr("Export to Libreoffice Calc"))
-        self.actionExport.triggered.connect(self.on_actionExport_triggered)
-        
-        self.actionSearch=QAction(self.tr("Search in table"))
-        self.actionSearch.triggered.connect(self.on_actionSearch_triggered)
-        self.actionSearch.setShortcut(Qt.CTRL + Qt.Key_F)
-        
     ## @param rsActionExport String ":/xulpymoney/save.png" for example
     def setIcons(self, rsActionExport=None):
         if rsActionExport is not None:
@@ -274,7 +471,7 @@ class wdgTable(QWidget):
         menu.addAction(self.actionSearch)
         menu.addSeparator()
         order=QMenu(self.tr("Order by"))
-        for action in self.table.orderby_actions:
+        for action in self.orderby_actions:
             order.addAction(action)
             menu.addAction(action)
         menu.addMenu(order)     
@@ -554,9 +751,9 @@ if __name__ == '__main__':
     mem=Mem()
     app = QApplication([])
 
-    w = wdgTable()
-    w.table.settings(mem, "myqtablewidget", "tblExample")
-    w.table.setDataFromManager(["Id", "Name", "Date", "Last update"], None, manager, ["id", "name", "date", "datetime"] )
+    w = myQTableWidget()
+    w.settings(mem.settings, "myqtablewidget", "tblExample")
+    w.setDataFromManager(["Id", "Name", "Date", "Last update"], None, manager, ["id", "name", "date", "datetime"] )
     w.move(300, 300)
     w.resize(800, 400)
     w.setWindowTitle('myQTableWidget example')
