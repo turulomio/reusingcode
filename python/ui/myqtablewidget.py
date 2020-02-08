@@ -18,6 +18,7 @@ class myQTableWidget(QWidget):
         self.laySearch=QHBoxLayout()
         self.lbl=QLabel()
         self.table=QTableWidget()
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.lbl.setText(self.tr("Add a string to search in table"))
         self.lbl.hide()
         self.txtSearch=QLineEdit()
@@ -42,8 +43,7 @@ class myQTableWidget(QWidget):
         self.settingsSection=None
         self.table.setAlternatingRowColors(True)
         self._last_height=None
-        
-        
+                
     def setVerticalHeaderHeight(self, height):
         """height, if null default.
         Must be after settings"""
@@ -114,11 +114,9 @@ class myQTableWidget(QWidget):
 
     def on_orderby_action_triggered(self, action):
         action=QObject.sender(self)#Busca el objeto que ha hecho la signal en el slot en el que está conectado
-        print(action.text())
         action_index=self.data_header_horizontal.index(action.text())#Search the position in the headers of the action Text
-        attribute=self.manager_attributes[action_index]
-        self.manager.arr=sorted(self.manager.arr, key=lambda c: getattr(c, attribute),  reverse=False)     
-        self.setDataFromManager(self.data_header_horizontal, self.data_header_vertical, self.manager, self.manager_attributes)
+        self.data=sorted(self.data, key=lambda c: c[action_index],  reverse=False)     
+        self.setData(self.data_header_horizontal, self.data_header_vertical, self.data)
 
     ## Adds a horizontal header array , a vertical header array and a data array
     ##
@@ -215,7 +213,7 @@ class myQTableWidget(QWidget):
     def on_actionExport_triggered(self):
         filename = QFileDialog.getSaveFileName(self, self.tr("Save File"), "table.ods", self.tr("Libreoffice calc (*.ods)"))[0]
         if filename:
-            Table2ODS(self.mem,filename, self, "My table")
+            Table2ODS(filename, self, "My table")
             
     def on_actionSearch_triggered(self):
         self.lbl.show()
@@ -225,15 +223,16 @@ class myQTableWidget(QWidget):
             
     ## Returns a qmenu to be used in other qmenus
     def qmenu(self, title="Table options"):
-        menu=QMenu(self.tr(title))
+        menu=QMenu(self.parent)
+        menu.setTitle(self.tr(title))
         menu.addAction(self.actionExport)
         menu.addSeparator()
         menu.addAction(self.actionSearch)
         menu.addSeparator()
-        order=QMenu(self.tr("Order by"))
+        order=QMenu(menu)
+        order.setTitle(self.tr("Order by"))
         for action in self.actionListOrderBy:
             order.addAction(action)
-            menu.addAction(action)
         menu.addMenu(order)     
         return menu
         
@@ -250,94 +249,49 @@ class myQTableWidget(QWidget):
                 self.table.showRow(row)
 
 class Table2ODS(ODS_Write):
-    def __init__(self, mem, filename, table, title):
+    def __init__(self, filename, table, title):
         ODS_Write.__init__(self, filename)
-        self.mem=mem
         sheet=self.createSheet(title)
         #Array width
         widths=[]
-        if not table.verticalHeader().isHidden():
-            widths.append(table.verticalHeader().width()*0.90)
-        for i in range(table.columnCount()):
-            widths.append(table.columnWidth(i)*0.90)
+        if not table.table.verticalHeader().isHidden():
+            widths.append(table.table.verticalHeader().width()*0.90)
+        for i in range(table.table.columnCount()):
+            widths.append(table.table.columnWidth(i)*0.90)
         sheet.setColumnsWidth(widths)
 
         #firstcontentletter and firstcontentnumber
-        if table.horizontalHeader().isHidden() and not table.verticalHeader().isHidden():
+        if table.table.horizontalHeader().isHidden() and not table.table.verticalHeader().isHidden():
             coord=Coord("B1")
-        elif not table.horizontalHeader().isHidden() and table.verticalHeader().isHidden():
+        elif not table.table.horizontalHeader().isHidden() and table.table.verticalHeader().isHidden():
             print("A2")
             coord=Coord("A2")
-            topleft=Coord("A2") if table.rowCount()<21 else Coord("A2").addRow(table.rowCount()-1-20)
-            sheet.freezeAndSelect(coord, Coord("A2").addRow(table.rowCount()-1), topleft)
-        elif not table.horizontalHeader().isHidden() and not table.verticalHeader().isHidden():
+            topleft=Coord("A2") if table.table.rowCount()<21 else Coord("A2").addRow(table.table.rowCount()-1-20)
+            sheet.freezeAndSelect(coord, Coord("A2").addRow(table.table.rowCount()-1), topleft)
+        elif not table.table.horizontalHeader().isHidden() and not table.table.verticalHeader().isHidden():
             coord=Coord("B2")
-        elif table.horizontalHeader().isHidden() and table.verticalHeader().isHidden():
+        elif table.table.horizontalHeader().isHidden() and table.table.verticalHeader().isHidden():
             coord=Coord("A1")
 
         #HH
-        if not table.horizontalHeader().isHidden():
-            for letter in range(table.columnCount()):
-                sheet.add(Coord(coord.letter + "1").addColumn(letter), table.horizontalHeaderItem(letter).text(), "OrangeCenter")
-        debug("HH Done")
+        if not table.table.horizontalHeader().isHidden():
+            for letter in range(table.table.columnCount()):
+                sheet.add(Coord(coord.letter + "1").addColumn(letter), table.table.horizontalHeaderItem(letter).text(), "OrangeCenter")
         #VH
-        if not table.verticalHeader().isHidden():
-            for number in range(table.rowCount()):
+        if not table.table.verticalHeader().isHidden():
+            for number in range(table.table.rowCount()):
                 try:#Caputuro cuando se numera sin items 1, 2, 3
-                    sheet.add(Coord("A" + coord.number).addRow(number), table.verticalHeaderItem(number).text(), "YellowLeft")
+                    sheet.add(Coord("A" + coord.number).addRow(number), table.table.verticalHeaderItem(number).text(), "YellowLeft")
                 except:
                     pass
-        debug("VH Done")
         #Items
-        for number in range(table.rowCount()):
-            for letter in range(table.columnCount()):
+        for number, row in enumerate(table.data):
+            for letter, column in enumerate(row):
                 try:
-                    o=self.itemtext2object(table.item(number, letter).text())
-                    sheet.add(Coord(coord.string()).addColumn(letter).addRow(number),o, self.object2style(o))
-                except:#Not a QTableWidgetItem or NOne
+                    sheet.add(Coord(coord.string()).addColumn(letter).addRow(number), column, self.object2style(column))
+                except:#None
                     pass
-        debug("Items done")
         self.save()
-
-    def itemtext2object(self, t):
-        """
-            Convierte t en un Money, Percentage o lo deja como text
-        """
-        if t[-2:]==" %":
-            try:
-                number=Decimal(t.replace(" %", ""))
-                return Percentage(number, 100)
-            except:
-                info("Error converting percentage")
-                pass
-        elif t[-2:] in (" €"," $"):
-           try:
-                number=Decimal(t.replace(t[-2:], "").replace(".", "").replace(",", "."))
-                return Currency(number, self.mem.currencies.find_by_symbol(t[-1:]).id)
-           except:
-                info("Error converting Money")
-        elif t.find(":")!=-1 and t.find("-")!=-1:
-            try:
-                return datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
-            except:
-                info("Error convertir datetime {}".format(t))
-        elif t.find("-")!=-1:
-            try:
-                return datetime.strptime(t, "%Y-%m-%d").date()
-            except:
-                info("Error convertir date {}".format(t))
-        elif t.find(".")!=-1:
-            try:
-                return Decimal(t)
-            except:
-                info("Error convertir Decimal {}".format(t))
-        else:
-            try:
-                return int(t)
-            except:
-                info("Error convertir Integer {}".format(t))
-        return t
-
 
     def object2style(self, o):
         """
@@ -520,7 +474,7 @@ if __name__ == '__main__':
     
     
     w.setContextMenuPolicy(Qt.CustomContextMenu)
-    w.customContextMenuRequested.connect(on_customContextMenuRequested)
+    w.table.customContextMenuRequested.connect(on_customContextMenuRequested)
     w.show()
     
     app.exec()
