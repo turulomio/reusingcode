@@ -6,12 +6,12 @@ from PyQt5.QtGui import QKeySequence, QColor
 from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout
 from .. datetime_functions import dtaware2string, dtaware_changes_tz, time2string
 from officegenerator import ODS_Write, Currency, Percentage,  Coord
-import datetime
 import logging
+from datetime import datetime, date,  timedelta
 from decimal import Decimal
 
 class myQTableWidget(QTableWidget):
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         QTableWidget.__init__(self, parent)
         self.parent=parent
         self.mem=None
@@ -104,23 +104,34 @@ class myQTableWidget(QTableWidget):
     ##
     ## Automatically set alignment
     def setData(self, header_horizontal, header_vertical, data):
+        # Headers
         self.data_header_horizontal=header_horizontal
         self.data_header_vertical=header_vertical
         self.data=data
         self.setColumnCount(len(self.data_header_horizontal))
-        for i in range(len(self.data)):
+        for i in range(len(self.data_header_horizontal)):
             self.setHorizontalHeaderItem(i, QTableWidgetItem(self.data_header_horizontal[i]))
-        #DATA  
+        # Data
         self.applySettings()
         self.clearContents()
-        
-        self.setRowCount(self.length()+1)
-        
-        self.applySettings()
-        self.setRowCount(self.length())        
-        for row in len(self.data):
-            for column in len(self.data_header_horizontal) :
-                self.setitem(row, column, self.object2qtablewidgetitem(self.data[row][column]))
+        self.setRowCount(len(self.data))        
+        for row in range(len(self.data)):
+            for column in range(len(self.data_header_horizontal)):
+                self.setItem(row, column, self.object2qtablewidgetitem(self.data[row][column]))
+
+    ## Adds a horizontal header array , a vertical header array and a data array
+    ##
+    ## Automatically set alignment
+    ## @param manager Manager object from libmanagers
+    ## @param object_attribute_names List of Strings with name of the object attributes
+    def setDataFromManager(self, header_horizontal, header_vertical, manager, object_attribute_names):
+        data=[]
+        for o in manager.arr:
+            row=[]
+            for name in object_attribute_names:
+                row.append(getattr(o, name))
+            data.append(row)
+        self.setData(header_horizontal, header_vertical, data)
                     
     ## Converts a objecct class to a qtablewidgetitem
     def object2qtablewidgetitem(self, o):
@@ -254,12 +265,12 @@ class Table2ODS(ODS_Write):
                 logging.info("Error converting Money")
         elif t.find(":")!=-1 and t.find("-")!=-1:
             try:
-                return datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
+                return datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
             except:
                 logging.info("Error convertir datetime {}".format(t))
         elif t.find("-")!=-1:
             try:
-                return datetime.datetime.strptime(t, "%Y-%m-%d").date()
+                return datetime.strptime(t, "%Y-%m-%d").date()
             except:
                 logging.info("Error convertir date {}".format(t))
         elif t.find(".")!=-1:
@@ -283,9 +294,9 @@ class Table2ODS(ODS_Write):
             return "WhiteEuro"
         elif o.__class__==Percentage:
             return "WhitePercentage"
-        elif o.__class__==datetime.datetime:
+        elif o.__class__==datetime:
             return "WhiteDatetime"
-        elif o.__class__==datetime.date:
+        elif o.__class__==date:
             return "WhiteDate"
         elif o.__class__==Decimal:
             return "WhiteDecimal6"
@@ -411,3 +422,46 @@ def qtime(ti, format="HH:MM"):
         elif ti.microsecond==4:
             item.setBackground(QColor(148, 148, 148))
     return item
+
+
+
+if __name__ == '__main__':
+    from libmanagers import ObjectManager_With_IdName
+    from PyQt5.QtCore import QSettings
+    from base64 import b64encode
+
+    class Mem:
+        def __init__(self):
+            self.settings=QSettings()
+            
+    class Prueba:
+        def __init__(self, id=None, name=None, date=None, datetime=None):
+            self.id=id
+            self.name=name
+            self.date=date
+            self.datetime=datetime
+                
+    class PruebaManager(ObjectManager_With_IdName):
+        def __init__(self):
+            ObjectManager_With_IdName.__init__(self)
+            
+
+    manager=PruebaManager()
+    for i in range(100):
+        manager.append(Prueba(i, b64encode(bytes(str(i).encode('UTF-8'))).decode('UTF-8'), date.today()-timedelta(days=i), datetime.now()+timedelta(seconds=3758*i)))
+        
+    selected=PruebaManager()
+    selected.append(manager.arr[3])
+    
+    mem=Mem()
+    app = QApplication([])
+
+    w = myQTableWidget()
+    w.settings(mem, "myqtablewidget", "tblExample")
+    w.setDataFromManager(["Id", "Name", "Date", "Last update"], None, manager, ["id", "name", "date", "datetime"] )
+    w.move(300, 300)
+    w.resize(800, 400)
+    w.setWindowTitle('myQTableWidget example')
+    w.show()
+    
+    app.exec()
