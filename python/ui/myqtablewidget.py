@@ -1,9 +1,9 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
-from PyQt5.QtCore import Qt,  pyqtSlot
-from PyQt5.QtGui import QKeySequence, QColor
-from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout
+from PyQt5.QtCore import Qt,  pyqtSlot, QObject
+from PyQt5.QtGui import QKeySequence, QColor, QIcon
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QAction, QMenu
 from .. datetime_functions import dtaware2string, dtaware_changes_tz, time2string
 from officegenerator import ODS_Write, Currency, Percentage,  Coord
 import logging
@@ -100,10 +100,26 @@ class myQTableWidget(QTableWidget):
             if filename:
                 Table2ODS(self.mem,filename, self, "My table")
 
+
+    def on_orderby_action_triggered(self, action):
+        action=QObject.sender(self)#Busca el objeto que ha hecho la signal en el slot en el que está conectado
+        print(action.text())
+        action_index=self.data_header_horizontal.index(action.text())#Search the position in the headers of the action Text
+        attribute=self.attribute_names[action_index]
+        self.manager.arr=sorted(self.manager.arr, key=lambda c: getattr(c, attribute),  reverse=False)     
+        self.setDataFromManager(self.data_header_horizontal, self.data_header_vertical, self.manager, self.attribute_names)
+
     ## Adds a horizontal header array , a vertical header array and a data array
     ##
     ## Automatically set alignment
     def setData(self, header_horizontal, header_vertical, data):
+        # Creates order actions here after creating data
+        self.orderby_actions=[]
+        for header in header_horizontal:
+            action=QAction(header)
+            self.orderby_actions.append(action)
+            action.triggered.connect(self.on_orderby_action_triggered)
+        
         # Headers
         self.data_header_horizontal=header_horizontal
         self.data_header_vertical=header_vertical
@@ -125,6 +141,8 @@ class myQTableWidget(QTableWidget):
     ## @param manager Manager object from libmanagers
     ## @param object_attribute_names List of Strings with name of the object attributes
     def setDataFromManager(self, header_horizontal, header_vertical, manager, object_attribute_names):
+        self.attribute_names=object_attribute_names
+        self.manager=manager
         data=[]
         for o in manager.arr:
             row=[]
@@ -195,6 +213,48 @@ class myQTableWidget(QTableWidget):
                 self.setItem(rownumber, column, o.qtablewidgetitem(decimals[column]))
             else:
                 self.setItem(rownumber, column, qleft(o))
+                
+class wdgTable(QWidget):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.parent=parent
+        self.lay=QVBoxLayout()
+        self.hlay=QHBoxLayout()
+        self.lbl=QLabel()
+        self.table=myQTableWidget()
+        self.lbl.setText(self.tr("Add a string to search in table"))
+        self.txt=QLineEdit()
+        self.hlay.addWidget(self.lbl)
+        self.hlay.addWidget(self.txt)
+        self.lay.addWidget(self.table)
+        self.lay.addLayout(self.hlay)
+        self.setLayout(self.lay)
+        
+        self.actionExport=QAction(self.tr("Export to Libreoffice Calc"))
+        self.actionExport.triggered.connect(self.on_actionExport_triggered)
+        
+    ## @param rsActionExport String ":/xulpymoney/save.png" for example
+    def setIcons(self, rsActionExport=None):
+        if rsActionExport is not None:
+            self.actionExport.setIcon(QIcon(rsActionExport))
+            
+    def on_actionExport_triggered(self):
+        filename = QFileDialog.getSaveFileName(self, self.tr("Save File"), "table.ods", self.tr("Libreoffice calc (*.ods)"))[0]
+        if filename:
+            Table2ODS(self.mem,filename, self, "My table")
+            
+    ## Returns a qmenu to be used in other qmenus
+    def qmenu(self, title="Table options"):
+        menu=QMenu(self.tr(title))
+        menu.addAction(self.actionExport)
+        menu.addSeparator()
+        order=QMenu(self.tr("Order by"))
+        for action in self.table.orderby_actions:
+            order.addAction(action)
+            menu.addAction(action)
+        menu.addMenu(order)     
+        return menu
+        
 
 class Table2ODS(ODS_Write):
     def __init__(self, mem, filename, table, title):
@@ -445,6 +505,8 @@ if __name__ == '__main__':
         def __init__(self):
             ObjectManager_With_IdName.__init__(self)
             
+    def on_customContextMenuRequested(pos):
+        w.qmenu().exec_(w.mapToGlobal(pos))
 
     manager=PruebaManager()
     for i in range(100):
@@ -456,12 +518,16 @@ if __name__ == '__main__':
     mem=Mem()
     app = QApplication([])
 
-    w = myQTableWidget()
-    w.settings(mem, "myqtablewidget", "tblExample")
-    w.setDataFromManager(["Id", "Name", "Date", "Last update"], None, manager, ["id", "name", "date", "datetime"] )
+    w = wdgTable()
+    w.table.settings(mem, "myqtablewidget", "tblExample")
+    w.table.setDataFromManager(["Id", "Name", "Date", "Last update"], None, manager, ["id", "name", "date", "datetime"] )
     w.move(300, 300)
     w.resize(800, 400)
     w.setWindowTitle('myQTableWidget example')
+    
+    
+    w.setContextMenuPolicy(Qt.CustomContextMenu)
+    w.customContextMenuRequested.connect(on_customContextMenuRequested)
     w.show()
     
     app.exec()
