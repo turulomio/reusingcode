@@ -50,7 +50,6 @@ class myQTableWidget(QWidget):
         self.actionSearch.setIcon(QIcon(":/reusingcode/search.png"))
         self.actionSearch.triggered.connect(self.on_actionSearch_triggered)
         self.actionSearch.setShortcut(Qt.CTRL + Qt.Key_F)
-        self.settingsSection=None
         self.table.setAlternatingRowColors(True)
         self._last_height=None
                 
@@ -70,8 +69,8 @@ class myQTableWidget(QWidget):
         if modifiers == Qt.ShiftModifier:
             for i in range(self.table.columnCount()):
                 self.table.setColumnWidth(i, newSize)
-            self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.objectName()), self.table.horizontalHeader().saveState() )
-            debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.table.objectName()))
+            self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject), self.table.horizontalHeader().saveState() )
+            debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject))
         elif modifiers == Qt.ControlModifier:
             self.on_actionSizeMinimum_triggered()
     
@@ -93,7 +92,7 @@ class myQTableWidget(QWidget):
         """settings must be defined before"""
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         self.table.horizontalHeader().sectionResized.connect(self.sectionResized)
-        state=self.settings.value("{}/{}_horizontalheader_state".format(self.settingsSection, self.objectName()))
+        state=self.settings.value("{}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject))
         if state:
             self.table.horizontalHeader().restoreState(state)
         
@@ -250,22 +249,22 @@ class myQTableWidget(QWidget):
     def on_actionSizeMinimum_triggered(self):
         self.table.resizeRowsToContents()
         self.table.resizeColumnsToContents()
-        self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.objectName()), self.table.horizontalHeader().saveState() )
-        debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.table.objectName()))
+        self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject), self.table.horizontalHeader().saveState() )
+        debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject))
 
     def on_actionSizeNeeded_triggered(self):
         for i in range(self.table.columnCount()):
             if self.table.sizeHintForColumn(i)>self.table.columnWidth(i):
                 self.table.setColumnWidth(i, self.table.sizeHintForColumn(i))
-        self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.objectName()), self.table.horizontalHeader().saveState() )
-        debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.table.objectName()))
+        self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject), self.table.horizontalHeader().saveState() )
+        debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.settingsObject))
 
     def on_actionSearch_triggered(self):
         self.lbl.show()
         self.txtSearch.show()
         self.cmdCloseSearch.show()
         self.txtSearch.setFocus()
-            
+
     ## Returns a qmenu to be used in other qmenus
     def qmenu(self, title="Table options"):
         menu=QMenu(self.parent)
