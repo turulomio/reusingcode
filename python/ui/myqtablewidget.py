@@ -3,7 +3,7 @@
 
 from PyQt5.QtCore import Qt,  pyqtSlot, QObject
 from PyQt5.QtGui import QKeySequence, QColor, QIcon
-from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QAction, QMenu, QToolButton
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QAction, QMenu, QToolButton, QAbstractItemView
 from .. datetime_functions import dtaware2string, dtaware_changes_tz, time2string
 from officegenerator import ODS_Write, Currency, Percentage,  Coord
 from logging import info, debug
@@ -20,6 +20,10 @@ class myQTableWidget(QWidget):
         self.table=QTableWidget()
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.verticalScrollBar().valueChanged.connect(self.on_table_verticalscrollbar_value_changed)
+        self.table.verticalHeader().hide()
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.lbl.setText(self.tr("Add a string to filter rows"))
         self.txtSearch=QLineEdit()
         self.txtSearch.textChanged.connect(self.on_txt_textChanged)
@@ -103,7 +107,6 @@ class myQTableWidget(QWidget):
     ## Resizes columns if column width is less than table hint
     #def verticalScrollbarAction(self,  action):
     def wheelEvent(self, event):
-        print(event)
         self.on_actionSizeNeeded_triggered()
         event.accept()
 
@@ -245,13 +248,12 @@ class myQTableWidget(QWidget):
             Table2ODS(filename, self, "My table")
 
     def on_actionSizeMinimum_triggered(self):
-        print("Minimum")
         self.table.resizeRowsToContents()
         self.table.resizeColumnsToContents()
         self.settings.setValue("{}/{}_horizontalheader_state".format(self.settingsSection, self.objectName()), self.table.horizontalHeader().saveState() )
         debug("Saved {}/{}_horizontalheader_state".format(self.settingsSection, self.table.objectName()))
+
     def on_actionSizeNeeded_triggered(self):
-        print("Needed")
         for i in range(self.table.columnCount()):
             if self.table.sizeHintForColumn(i)>self.table.columnWidth(i):
                 self.table.setColumnWidth(i, self.table.sizeHintForColumn(i))
