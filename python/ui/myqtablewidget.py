@@ -537,7 +537,14 @@ def qtime(ti, format="HH:MM"):
             item.setBackground(QColor(148, 148, 148))
     return item
 
-
+def qpercentage(percentage, decimals=2):
+    a=QTableWidgetItem(percentage.string(decimals))
+    a.setTextAlignment(Qt.AlignVCenter|Qt.AlignRight)
+    if percentage.value==None:
+        a.setForeground(QColor(0, 0, 255))
+    elif percentage.value<0:
+        a.setForeground(QColor(255, 0, 0))
+    return a
 
 if __name__ == '__main__':
     from libmanagers import ObjectManager_With_IdName
