@@ -13,11 +13,11 @@ class Percentage:
     def toDecimal(self, o):
         if o==None:
             return o
-        if o.__class__.__name__=="Currency":
+        if o.__class__.__name__ in ["Currency", "Money"]:
             return o.amount
         elif o.__class__.__name__=="Decimal":
             return o
-        elif o.__class__.__name__ in ( "int", "float"):
+        elif o.__class__.__name__ in ["int", "float"]:
             return Decimal(o)
         elif o.__class__.__name__=="Percentage":
             return o.value
