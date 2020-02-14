@@ -4,8 +4,8 @@
 
 from PyQt5.QtChart import QChart,  QLineSeries, QChartView, QValueAxis, QDateTimeAxis,  QPieSeries, QScatterSeries, QCandlestickSeries,  QCandlestickSet
 from PyQt5.QtCore import Qt, pyqtSlot, QObject, QPoint
-from PyQt5.QtGui import QPainter, QFont, QIcon, QColor
-from PyQt5.QtWidgets import QAction, QMenu, QFileDialog, QProgressDialog, QApplication, QDialog, QLabel, QVBoxLayout, QHBoxLayout, QGraphicsSimpleTextItem
+from PyQt5.QtGui import QPainter, QFont, QIcon, QColor, QPixmap
+from PyQt5.QtWidgets import QWidget, QAction, QMenu, QFileDialog, QProgressDialog, QApplication, QDialog, QLabel, QVBoxLayout, QHBoxLayout, QGraphicsSimpleTextItem
 from .. objects.percentage import Percentage
 from .. datetime_functions import epochms2dtaware, dtaware2epochms, dtnaive2string
 from datetime import timedelta, datetime
@@ -111,7 +111,8 @@ class VCCommons(QChartView):
 
     ## Save view to a file to generate an image file
     def save(self, savefile):
-        pixmap=self.grab()
+        pixmap=QPixmap(self.size())
+        self.render(pixmap)
         pixmap.save(savefile, quality=100)
 
     ## Sets if the chart must show animations
@@ -351,12 +352,6 @@ class VCPie(VCCommons):
         self.setRenderHint(QPainter.Antialiasing)
         self.clear()
 
-    def setCurrency(self, currency):
-        """
-            currency is a Currency Object
-        """
-        self.currency=currency
-
     def appendData(self, name, value,  exploded=False):
         slice=self.serie.append(name, value)
         slice.setExploded(exploded)
@@ -372,13 +367,12 @@ class VCPie(VCCommons):
 
         self._display_set_title()
         tooltip=""
-        c=self.currency.string
         for slice in self.serie.slices():
-            tooltip=tooltip+"{}: {} ({})\n".format(slice.label(), c(slice.value()), Percentage(slice.percentage(), 1)).upper()
+            tooltip=tooltip+"{}: {} ({})\n".format(slice.label(), slice.value(), Percentage(slice.percentage(), 1)).upper()
             slice.setLabel("{}: {}".format(slice.label(), Percentage(slice.percentage(), 1)).upper())
             if slice.percentage()<0.005:
                 slice.setLabelVisible(False)
-        tooltip=tooltip+"*** Total: {} ***".format(c(self.serie.sum())).upper()
+        tooltip=tooltip+"*** Total: {} ***".format(self.serie.sum()).upper()
         self.chart().addSeries(self.serie)
         
         self.setToolTip(tooltip)
@@ -442,3 +436,59 @@ class MyPopup(QDialog):
 
     def mousePressEvent(self, event):
         self.hide()
+
+if __name__ == '__main__':
+    from libmanagers import ObjectManager_With_IdName
+    from PyQt5.QtCore import QSettings
+    class Mem:
+        def __init__(self):
+            self.settings=QSettings()
+            
+    class Prueba:
+        def __init__(self, id=None, name=None):
+            self.id=id
+            self.name=name
+            
+        def qicon(self):
+            return QIcon(":/prueba.svg")
+    
+    class PruebaManager(ObjectManager_With_IdName):
+        def __init__(self):
+            ObjectManager_With_IdName.__init__(self)
+            
+    d={'one':1, 'two':2, 'three':3, 'four':4}
+    manager=PruebaManager()
+    for k, v in d.items():
+        manager.append(Prueba(v, k))
+        
+    selected=PruebaManager()
+    selected.append(manager.arr[3])
+    
+    mem=Mem()
+    app = QApplication([])
+
+    
+    #Temporal series
+    vcts=VCTemporalSeries()
+    sBasic=vcts.appendTemporalSeries("Basic")
+    for i in range(20):
+        vcts.appendTemporalSeriesData(sBasic, datetime.now()+timedelta(days=i),  i % 5)
+    vcts.display()
+    
+    #Pie
+    vcpie=VCPie()
+    for k, v in d.items():
+        vcpie.appendData(k, v)
+    vcpie.display()
+    
+    #Widget
+    w=QWidget()
+    lay=QHBoxLayout(w)
+    lay.addWidget(vcts)
+    lay.addWidget(vcpie)
+    w.resize(1500, 450)
+    w.move(300, 300)
+    w.setWindowTitle('myqcharts example')
+    w.show()
+    
+    app.exec()
