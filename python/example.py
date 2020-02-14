@@ -42,28 +42,26 @@ def myQTableWidget():
     command("cp ui/myqtablewidget.py {0}".format(dir))
     command("cp libmanagers.py {0}".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
-#    command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
     command("sed -i -e 's/ \.\. / /' {}/myqtablewidget.py".format(dir))
-#    command("sed -i -e 's/\.myqtablewidget/myqtablewidget/' {0}/frmSelector.py".format(dir))
-#    command("sed -i -e 's/ \.\. / /' {0}/myqtablewidget.py".format(dir))
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
-    command("python {1}/myqtablewidget.py".format(args.example, dir))    
+    command("python {1}/myqtablewidget.py".format(args.example, dir))  
+
 def myqcharts():
     dir="/tmp/reusingcode_myqcharts"
     rmtree(dir, ignore_errors=True)
     makedirs(dir, exist_ok=True)
 
     command("cp ui/myqcharts.py {0}".format(dir))
+    command("cp ui/myqtablewidget.py {0}".format(dir))
     command("cp objects/percentage.py {0}".format(dir))
     command("cp objects/currency.py {0}".format(dir))
-    command("cp libmanagers.py {0}".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
-#    command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
+    command("sed -i -e 's/\.myqtablewidget/myqtablewidget/' {0}/myqcharts.py".format(dir))
     command("sed -i -e 's/ \.\. objects\./ /' {}/myqcharts.py".format(dir))
-#    command("sed -i -e 's/\.myqtablewidget/myqtablewidget/' {0}/frmSelector.py".format(dir))
     command("sed -i -e 's/ \./ /' {0}/percentage.py".format(dir))
     command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqcharts.py".format(dir))
-    command("sed -i -e 's/ \.datetime_functions/ datetime_functions/' {}/libmanagers.py".format(dir))
+    command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqtablewidget.py".format(dir))
+
     command("python {1}/myqcharts.py".format(args.example, dir))
 
 
