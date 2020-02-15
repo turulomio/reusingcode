@@ -177,8 +177,14 @@ class myQTableWidget(QWidget):
         self.data_header_vertical=header_vertical
         self.data=data
         self.table.setColumnCount(len(self.data_header_horizontal))
-        for i in range(len(self.data_header_horizontal)):
-            self.table.setHorizontalHeaderItem(i, QTableWidgetItem(self.data_header_horizontal[i]))
+        if self.data_header_horizontal is not None:
+            for i in range(len(self.data_header_horizontal)):
+                self.table.setHorizontalHeaderItem(i, QTableWidgetItem(self.data_header_horizontal[i]))
+        if self.data_header_vertical is not None:
+            self.table.setRowCount(len(self.data))# To do not lose data
+            for i in range(len(self.data_header_vertical)):
+                self.table.setVerticalHeaderItem(i, QTableWidgetItem(self.data_header_vertical[i]))
+
         # Data
         self.applySettings()
         self.table.clearContents()
@@ -190,7 +196,17 @@ class myQTableWidget(QWidget):
                     self.table.setCellWidget(row, column, wdg)
                 else:#qtablewidgetitem
                     self.table.setItem(row, column, wdg)
-
+                    
+    def print(self, hh, hv, data):
+    
+        print(hh)
+        for i, row in enumerate(data):
+            print (hv[i] , row)
+            
+        print ("Len hh:", len(hh))
+        print ("Len hv:", len(hv))
+        print ("Len data:", len(data[0]), "x", len(data))
+            
     ## If true None values are set at the top of the list after sorting. If not at the bottom of the list
     def setNoneAtTop(self,boolean):
         self._none_at_top=boolean
