@@ -277,13 +277,10 @@ class myQTableWidget(QWidget):
 
     ## Returns a list of strings with the horizontal headers
     def listVerticalHeaders(self):
-        try:
-            header=[]
-            for i in range(self.table.verticalHeader().count()):
-                header.append(self.table.verticalHeaderItem(i).text())
-                return header
-        except:
-            return None
+        header=[]
+        for i in range(self.table.verticalHeader().count()):
+            header.append(self.table.verticalHeaderItem(i).text())
+        return header
 
     ## Returns a lisf of rows with the text of the 
     def listText(self):
@@ -582,15 +579,16 @@ if __name__ == '__main__':
     
     mem=Mem()
     app = QApplication([])
+    hv=["Paco"]*manager.length()
 
     w = myQTableWidget()
     w.settings(mem.settings, "myqtablewidget", "tblExample")
-    w.setDataFromManager(["Id", "Name", "Date", "Last update","Mem.name", "Mmem.age (i)"], None, manager, ["id", "name", "date", "datetime","pruebita.name", ["pruebita.age", [22,]], ] )
+    w.setDataFromManager(["Id", "Name", "Date", "Last update","Mem.name", "Mem.age (i)"], hv, manager, ["id", "name", "date", "datetime","pruebita.name", ["pruebita.age", [22,]], ] )
     w.move(300, 300)
     w.resize(800, 400)
     w.setWindowTitle('myQTableWidget example')
     
-    
+    w.table.verticalHeader().show()
     w.setContextMenuPolicy(Qt.CustomContextMenu)
     w.table.customContextMenuRequested.connect(on_customContextMenuRequested)
     w.show()
