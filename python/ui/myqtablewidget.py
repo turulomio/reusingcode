@@ -380,12 +380,11 @@ class myQTableWidget(QWidget):
             #Converts size in pixels to cm
             PixelWidthDimension = self.logicalDpiX()# width dots per inch
             inch = pixels/PixelWidthDimension
-            cm= inch*2.54 + 0.05
+            cm= inch*2.54*(1+0.05)
             return cm
         # # # # # # # # # #
         widths=[]
-        if self.hv is not None:
-            widths.append(pixel2cm(self.table.verticalHeader().width()))
+        vwidth=pixel2cm(self.table.verticalHeader().width())
         for i in range(self.table.columnCount()):
             widths.append(pixel2cm(self.table.columnWidth(i)))
 
@@ -393,7 +392,7 @@ class myQTableWidget(QWidget):
         m=Model()
         m.setTitle(title)
         m.setHorizontalHeaders(self.listHorizontalHeaders(), widths)
-        m.setVerticalHeaders(self.listVerticalHeaders())
+        m.setVerticalHeaders(self.listVerticalHeaders(),vwidth)
         m.setData(self.data)
         return m
 
@@ -588,7 +587,7 @@ if __name__ == '__main__':
     
     mem=Mem()
     app = QApplication([])
-    hv=["Paco"]*manager.length()
+    hv=["Johnny be good"]*manager.length()
 
     w = myQTableWidget()
     w.settings(mem.settings, "myqtablewidget", "tblExample")
