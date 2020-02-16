@@ -270,6 +270,8 @@ class myQTableWidget(QWidget):
 
     ## Returns a list of strings with the horizontal headers
     def listHorizontalHeaders(self):
+        if self.hh is None:
+            return None
         header=[]
         for i in range(self.table.horizontalHeader().count()):
             header.append(self.table.horizontalHeaderItem(i).text())
@@ -277,9 +279,12 @@ class myQTableWidget(QWidget):
 
     ## Returns a list of strings with the horizontal headers
     def listVerticalHeaders(self):
+        if self.hv is None:
+            return None
         header=[]
         for i in range(self.table.verticalHeader().count()):
-            header.append(self.table.verticalHeaderItem(i).text())
+            if self.table.verticalHeaderItem(i) is not None:
+                header.append(self.table.verticalHeaderItem(i).text())
         return header
 
     ## Returns a lisf of rows with the text of the 
@@ -581,22 +586,27 @@ if __name__ == '__main__':
     manager.append(Prueba(None, False, None, None))
     manager.append(Prueba(None, True, None, None))
     
+    data=[]
+    for o in manager.arr:
+        data.append([o.id, o.name,  o.date,  o.datetime,  o.pruebita.name, o.pruebita.age(1)])
+    
         
     selected=PruebaManager()
     selected.append(manager.arr[3])
     
     mem=Mem()
     app = QApplication([])
-    hv=["Johnny be good"]*manager.length()
+    hv=None
 
     w = myQTableWidget()
+    hv=["Johnny be good"]*manager.length()
+    w.table.verticalHeader().show()
     w.settings(mem.settings, "myqtablewidget", "tblExample")
-    w.setDataFromManager(["Id", "Name", "Date", "Last update","Mem.name", "Mem.age (i)"], hv, manager, ["id", "name", "date", "datetime","pruebita.name", ["pruebita.age", [22,]], ] )
+    w.setData(["Id", "Name", "Date", "Last update","Mem.name", "Age"], hv, data )
     w.move(300, 300)
     w.resize(800, 400)
     w.setWindowTitle('myQTableWidget example')
     
-    w.table.verticalHeader().show()
     w.setContextMenuPolicy(Qt.CustomContextMenu)
     w.table.customContextMenuRequested.connect(on_customContextMenuRequested)
     w.show()
