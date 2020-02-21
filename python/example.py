@@ -55,6 +55,17 @@ def frmSelector():
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
     command("python {1}/{0}.py".format(args.example, dir))
     
+def libmanagers():
+    dir="/tmp/reusingcode_libmanagers"
+    rmtree(dir, ignore_errors=True)
+    makedirs(dir, exist_ok=True)
+
+    command("cp libmanagers.py {0}".format(dir))
+    command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
+#    command("sed -i -e 's/ \.\. / /' {}/myqtablewidget.py".format(dir))
+    command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
+    command("python {}/libmanagers.py".format(dir))  
+    
 def myQTableWidget():
     dir="/tmp/reusingcode_myqtablewidget"
     rmtree(dir, ignore_errors=True)
@@ -87,7 +98,7 @@ def myqcharts():
 
 
 parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
-parser.add_argument('--example', action='store', choices=['wdgDatetime', 'frmSelector', 'myQTableWidget' , 'myqcharts', 'frmAccess'], required=True)
+parser.add_argument('--example', action='store', choices=['wdgDatetime', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myqcharts', 'frmAccess'], required=True)
 args=parser.parse_args()
 
 if args.example=="wdgDatetime":
@@ -100,3 +111,5 @@ elif args.example=="myQTableWidget":
     myQTableWidget()
 elif args.example=="myqcharts":
     myqcharts()
+elif args.example=="libmanagers":
+    libmanagers()
