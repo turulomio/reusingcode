@@ -10,7 +10,7 @@
 ##
 
 from datetime import datetime, timedelta, date
-from logging import debug
+from logging import debug, critical
 from .datetime_functions import dtaware_day_end_from_date, dtaware_day_start_from_date, dtnaive_day_end_from_date, dtnaive_day_start_from_date
 
 
@@ -337,8 +337,11 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
     ## Returns another object manager of the same class with the elements that contains a string in the name
     ## @param s string to search
     ## @casesensitive Boolean if it's a case sensitive search    
-    def ObjectManager_with_name_contains_string(self, s, casesensitive, *initparams):
-        result=self.__class__(*initparams)#Para que coja la clase del objeto que lo invoca
+    def ObjectManager_which_name_contains(self, s, casesensitive):
+        result=self.emptyManager()
+        if s is None:
+            critical("Search string can't be None")
+            return result
         if casesensitive==True:
             for a in self.arr:
                 if s in a.name:
