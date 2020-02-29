@@ -1,7 +1,7 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
-from PyQt5.QtCore import Qt,  pyqtSlot, QObject
+from PyQt5.QtCore import Qt,  pyqtSlot, QObject,  pyqtSignal
 from PyQt5.QtGui import QKeySequence, QColor, QIcon, QBrush
 from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidget, QFileDialog,  QTableWidgetItem, QWidget, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QAction, QMenu, QToolButton, QAbstractItemView
 from .. datetime_functions import dtaware2string, dtaware_changes_tz, time2string
@@ -10,6 +10,7 @@ from logging import info, debug
 from datetime import datetime, date,  timedelta
                 
 class myQTableWidget(QWidget):
+    setDataFinished=pyqtSignal()
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.parent=parent
@@ -209,7 +210,8 @@ class myQTableWidget(QWidget):
                     self.table.setCellWidget(row, column, wdg)
                 else:#qtablewidgetitem
                     self.table.setItem(row, column, wdg)
-                    
+        self.setDataFinished.emit()
+
     def print(self, hh, hv, data):
         print(hh)
         for i, row in enumerate(data):

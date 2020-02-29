@@ -335,7 +335,7 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
             return result
         
     def order_by_name(self, reverse=False, none_at_top=True):
-        self.order_with_none(self, "name", reverse=reverse, none_at_top=none_at_top)
+        self.order_with_none("name", reverse=reverse, none_at_top=none_at_top)
 
     def order_by_upper_name(self, reverse=False, none_at_top=True):
         self.order_with_none(self, ("name.upper", []), reverse=reverse, none_at_top=none_at_top)
