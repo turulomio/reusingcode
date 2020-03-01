@@ -1,4 +1,5 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
+from logging import info, basicConfig, DEBUG, INFO, CRITICAL, ERROR, WARNING
 from os import system, makedirs
 from shutil import rmtree
 
@@ -95,12 +96,29 @@ def myqcharts():
     command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqtablewidget.py".format(dir))
 
     command("python {1}/myqcharts.py".format(args.example, dir))
+    
+def addDebugSystem( level):
+    logFormat = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s [%(module)s:%(lineno)d]"
+    dateFormat='%F %I:%M:%S'
 
+    if level=="DEBUG":#Show detailed information that can help with program diagnosis and troubleshooting. CODE MARKS
+        basicConfig(level=DEBUG, format=logFormat, datefmt=dateFormat)
+    elif level=="INFO":#Everything is running as expected without any problem. TIME BENCHMARCKS
+        basicConfig(level=INFO, format=logFormat, datefmt=dateFormat)
+    elif level=="WARNING":#The program continues running, but something unexpected happened, which may lead to some problem down the road. THINGS TO DO
+        basicConfig(level=WARNING, format=logFormat, datefmt=dateFormat)
+    elif level=="ERROR":#The program fails to perform a certain function due to a bug.  SOMETHING BAD LOGIC
+        basicConfig(level=ERROR, format=logFormat, datefmt=dateFormat)
+    elif level=="CRITICAL":#The program encounters a serious error and may stop running. ERRORS
+        basicConfig(level=CRITICAL, format=logFormat, datefmt=dateFormat)
+    info("Debug level set to {}".format(level))
 
 parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
 parser.add_argument('--example', action='store', choices=['wdgDatetime', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myqcharts', 'frmAccess'], required=True)
+parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="DEBUG")
 args=parser.parse_args()
 
+addDebugSystem(args.debug)
 if args.example=="wdgDatetime":
     wdgDatetime()
 elif args.example=="frmAccess":
