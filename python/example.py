@@ -1,7 +1,8 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 from logging import info, basicConfig, DEBUG, INFO, CRITICAL, ERROR, WARNING
-from os import system, makedirs
+from os import system, makedirs, chdir
 from shutil import rmtree
+from sys import path
 
 def command(s):
     print (s)
@@ -71,13 +72,17 @@ def myQTableWidget():
     dir="/tmp/reusingcode_myqtablewidget"
     rmtree(dir, ignore_errors=True)
     makedirs(dir, exist_ok=True)
+    path.insert(0, dir)
 
     command("cp ui/myqtablewidget.py {0}".format(dir))
     command("cp libmanagers.py {0}".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
     command("sed -i -e 's/ \.\. / /' {}/myqtablewidget.py".format(dir))
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
-    command("python {1}/myqtablewidget.py".format(args.example, dir))  
+    
+    chdir(dir)
+    from myqtablewidget import example
+    example()
 
 def myqcharts():
     dir="/tmp/reusingcode_myqcharts"
