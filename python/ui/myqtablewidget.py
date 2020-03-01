@@ -440,7 +440,7 @@ class mqtwDataWithObject(mqtwData):
     ## @param manager Manager object from libmanagers
     ## @param manager_attributes List of Strings with name of the object attributes, order by appareance
     ## @param additional Function without it's call, to add additional table information like Total Rows or icons
-    def setDataWithObject(self, header_horizontal, header_vertical, data, decimals=2, zonename='UTC', additional=None):
+    def setDataWithObjects(self, header_horizontal, header_vertical, data, decimals=2, zonename='UTC', additional=None):
         self.additional=additional
         self.data=data
 
@@ -463,7 +463,7 @@ class mqtwDataWithObject(mqtwData):
     ## Order data columns. None values are set at the beginning
     def on_orderby_action_triggered(self, action, action_index, reverse):
         self._order_data(action_index, reverse)
-        self.setDataWithObject(self.hh, self.hv, self.data, self.data_decimals, self.data_zonename, additional=self.additional)
+        self.setDataWithObjects(self.hh, self.hv, self.data, self.data_decimals, self.data_zonename, additional=self.additional)
         
 class mqtwManager(myQTableWidget):
     def __init__(self, parent):
@@ -752,7 +752,7 @@ if __name__ == '__main__':
     hv=["Johnny be good"]*len(data_object)
     mqtw_data_with_object.settings(mem.settings, "myqtablewidget", "tblExample")
     hh=["Id", "Name", "Date", "Last update","Mem.name", "Age"]
-    mqtw_data_with_object.setDataWithObject(hh, hv, data_object, additional=additional_with_objects )
+    mqtw_data_with_object.setDataWithObjects(hh, hv, data_object, additional=additional_with_objects )
 
     #mqtwManager
     mqtw_manager = mqtwManager(w)    
