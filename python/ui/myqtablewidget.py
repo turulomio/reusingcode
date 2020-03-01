@@ -12,6 +12,7 @@ from datetime import datetime, date,  timedelta
                 
 class myQTableWidget(QWidget):
     setDataFinished=pyqtSignal()
+    tableSelectionChanged=pyqtSignal()
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.parent=parent
@@ -169,8 +170,10 @@ class myQTableWidget(QWidget):
     ## Order data columns. None values are set at the beginning
     def on_orderby_action_triggered(self, action, action_index, reverse):
         self._order_data(action_index, reverse)
-        self.setData(self.hh, self.hv, self.data)
+        self.update()
 
+    def update(self):
+        self.setData(self.hh, self.hv, self.data, self.data_decimals, self.data_zonename)
 
     def applySettings(self):
         """settings must be defined before"""
@@ -257,6 +260,12 @@ class myQTableWidget(QWidget):
             return qcrossedout()
         else:            
             return qleft(o)
+
+    ## Adds a row in a table, with values
+    ## @param row integer with the row to add
+    def addRow(self, row, value_list, decimals=2, zonename="UTC"):
+        for column, value in enumerate(value_list):
+            self.table.setItem(row, column, self.object2qtablewidgetitem(value, decimals, zonename)) 
 
     ## Returns a list of strings with the horizontal headers
     def listHorizontalHeaders(self):
@@ -395,11 +404,14 @@ class myQTableWidget(QWidget):
 class mqtwData(myQTableWidget):
     def __init__(self, parent):
         myQTableWidget.__init__(self, parent)        
-        
+
 ## Uses data, but the last column of data it's the object of the row
 ## It's not a manager, but it's similar
 ## Used when Table is too complex for mqtwManager
-class mqtwDataWithObject(mqtwData):
+##
+## Selection is managed by self.mqtw.selected, not by self.manager, it's a data mqtw
+
+class mqtwDataWithObjects(mqtwData):
     def __init__(self, parent):
         mqtwData.__init__(self, parent)
         self._selection_mode=ManagerSelectionMode.Object #Used although it's not a manager
@@ -418,21 +430,23 @@ class mqtwDataWithObject(mqtwData):
     def objects(self):
         r=[]
         for i in range(len(self.data)):
-            r.append(self.object())
+            r.append(self.object(i))
         return r
 
+    @pyqtSlot()
     def on_itemSelectionChanged(self):
         if self._selection_mode==ManagerSelectionMode.Object:
             self.selected=None
         else:
             self.selected=[]
         for i in self.table.selectedItems():#itera por cada item no row.
-            if i.column()==0:
+            if i.column()==0 and i.row()<len(self.data):
                 if self._selection_mode==ManagerSelectionMode.Object:
                     self.selected=self.object(i.row())
                 elif self._selection_mode==ManagerSelectionMode.List:
                     self.selected.append(self.object(i.row()))
         debug("{} data selection: {}".format(self.__class__.__name__,  self.selected))
+        self.tableSelectionChanged.emit()
 
     ## Adds a horizontal header array , a vertical header array and a data array
     ##
@@ -463,8 +477,11 @@ class mqtwDataWithObject(mqtwData):
     ## Order data columns. None values are set at the beginning
     def on_orderby_action_triggered(self, action, action_index, reverse):
         self._order_data(action_index, reverse)
+        self.update()
+
+    def update(self):
         self.setDataWithObjects(self.hh, self.hv, self.data, self.data_decimals, self.data_zonename, additional=self.additional)
-        
+
 class mqtwManager(myQTableWidget):
     def __init__(self, parent):
         myQTableWidget.__init__(self, parent)
@@ -480,6 +497,7 @@ class mqtwManager(myQTableWidget):
                 elif self.manager.selectionMode()==ManagerSelectionMode.List:
                     self.manager.selected.append(self.manager.object(i.row()))
         debug("{} selection: {}".format(self.manager.__class__.__name__,  self.manager.selected))
+        self.tableSelectionChanged.emit()
 
     ## Adds a horizontal header array , a vertical header array and a data array
     ##
@@ -518,6 +536,9 @@ class mqtwManager(myQTableWidget):
     ## Order data columns. None values are set at the beginning
     def on_orderby_action_triggered(self, action, action_index, reverse):
         self.manager.order_with_none(self.manager_attributes[action_index], reverse=reverse, none_at_top=self._none_at_top)
+        self.update()
+
+    def update(self):
         self.setDataFromManager(self.hh, self.hv, self.manager, self.manager_attributes, self.data_decimals, self.data_zonename, additional=self.additional)
 
 
@@ -747,7 +768,7 @@ if __name__ == '__main__':
     mqtw_data.setData(hh, hv, data )
     
     #mqtw with object
-    mqtw_data_with_object = mqtwDataWithObject(w)
+    mqtw_data_with_object = mqtwDataWithObjects(w)
     mqtw_data_with_object.setGenericContextMenu()
     hv=["Johnny be good"]*len(data_object)
     mqtw_data_with_object.settings(mem.settings, "myqtablewidget", "tblExample")
