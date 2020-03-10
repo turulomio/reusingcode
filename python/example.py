@@ -64,7 +64,6 @@ def libmanagers():
 
     command("cp libmanagers.py {0}".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
-#    command("sed -i -e 's/ \.\. / /' {}/myqtablewidget.py".format(dir))
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
     command("python {}/libmanagers.py".format(dir))  
     
@@ -92,15 +91,20 @@ def myqcharts():
     command("cp ui/myqcharts.py {0}".format(dir))
     command("cp ui/myqtablewidget.py {0}".format(dir))
     command("cp objects/percentage.py {0}".format(dir))
+    command("cp casts.py {0}".format(dir))
     command("cp objects/currency.py {0}".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
+    command("cp libmanagers.py {0}/libmanagers.py".format(dir))
     command("sed -i -e 's/\.myqtablewidget/myqtablewidget/' {0}/myqcharts.py".format(dir))
     command("sed -i -e 's/ \.\. objects\./ /' {}/myqcharts.py".format(dir))
+    command("sed -i -e 's/ \.\. / /' {}/myqcharts.py".format(dir))
+    command("sed -i -e 's/ \.\. / /' {}/myqtablewidget.py".format(dir))
     command("sed -i -e 's/ \./ /' {0}/percentage.py".format(dir))
+    command("sed -i -e 's/ \./ /' {0}/libmanagers.py".format(dir))
     command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqcharts.py".format(dir))
     command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqtablewidget.py".format(dir))
 
-    command("python {1}/myqcharts.py".format(args.example, dir))
+    command("python {}/myqcharts.py".format(dir))
     
 def addDebugSystem( level):
     logFormat = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s [%(module)s:%(lineno)d]"
