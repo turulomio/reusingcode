@@ -87,6 +87,7 @@ def myqcharts():
     dir="/tmp/reusingcode_myqcharts"
     rmtree(dir, ignore_errors=True)
     makedirs(dir, exist_ok=True)
+    path.insert(0, dir)
 
     command("cp ui/myqcharts.py {0}".format(dir))
     command("cp ui/myqtablewidget.py {0}".format(dir))
@@ -104,7 +105,9 @@ def myqcharts():
     command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqcharts.py".format(dir))
     command("sed -i -e 's/ \.\. datetime_functions/ datetime_functions/' {}/myqtablewidget.py".format(dir))
 
-    command("python {}/myqcharts.py".format(dir))
+    chdir(dir)
+    from myqcharts import example
+    example()
     
 def addDebugSystem( level):
     logFormat = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s [%(module)s:%(lineno)d]"
