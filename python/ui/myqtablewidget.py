@@ -193,8 +193,9 @@ class myQTableWidget(QWidget):
 
     ## Used to order using clicks in headers
     def on_table_horizontalHeader_sectionClicked(self, index):
-        self.actionListOrderBy[index].triggered.emit()
-        debug("Ordering table by header '{}'".format(self.actionListOrderBy[index].text()))
+        if hasattr(self, "data")==True:
+            self.actionListOrderBy[index].triggered.emit()
+            debug("Ordering table by header '{}'".format(self.actionListOrderBy[index].text()))
 
     ## Used to order table progamatically
     def setOrderBy(self, index, reverse):
