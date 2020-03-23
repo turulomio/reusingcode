@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+.eric6project/
+reusingcode.e4p
