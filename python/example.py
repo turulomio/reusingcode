@@ -45,6 +45,7 @@ def frmSelector():
     dir="/tmp/reusingcode_frmselector"
     rmtree(dir, ignore_errors=True)
     makedirs(dir, exist_ok=True)
+    path.insert(0, dir)
 
     command("cp ui/{0}.py {1}/{0}.py".format(args.example, dir))
     command("cp ui/myqtablewidget.py {0}".format(dir))
@@ -56,7 +57,10 @@ def frmSelector():
     command("sed -i -e 's/\.myqtablewidget/myqtablewidget/' {0}/frmSelector.py".format(dir))
     command("sed -i -e 's/ \.\. / /' {0}/myqtablewidget.py".format(dir))
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
-    command("python {1}/{0}.py".format(args.example, dir))
+
+    chdir(dir)
+    from frmSelector import example
+    example()
     
 def libmanagers():
     dir="/tmp/reusingcode_libmanagers"
