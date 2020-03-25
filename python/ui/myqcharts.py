@@ -548,7 +548,7 @@ class VCPie(QWidget):
         self.settingsSection=settingsSection
         self.settingsObject=settingsObject
         self.setObjectName(self.settingsObject)
-        self.table.settings(self.settings, self.settingsSection, self.settingsObject+"_mqtw")
+        self.table.setSettings(self.settings, self.settingsSection, self.settingsObject+"_mqtw")
 
     def on_actionShowData_triggered(self):
         if self.actionShowData.text()==self.tr("Show chart data"):

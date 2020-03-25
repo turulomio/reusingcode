@@ -49,6 +49,7 @@ def frmSelector():
     command("cp ui/{0}.py {1}/{0}.py".format(args.example, dir))
     command("cp ui/myqtablewidget.py {0}".format(dir))
     command("cp libmanagers.py {0}".format(dir))
+    command("cp casts.py {0}".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
     command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
     command("sed -i -e 's/ \.\. / /' {1}/{0}.py".format(args.example, dir))
