@@ -231,8 +231,7 @@ class mqtw(QWidget):
                     other_action.setText(other_action.text().replace(self.tr(" (desc)"),""))
 
     ## Order data columns. None values are set at the beginning
-    def on_orderby_action_triggered(self):   
-        print("MQTW")
+    def on_orderby_action_triggered(self):
         action=QObject.sender(self)#Busca el objeto que ha hecho la signal en el slot en el que está conectado
         self._sort_action_index=self.hh.index(action.text().replace(" (desc)",""))#Search the position in the headers of the action Text
         if action.text().find(self.tr(" (desc)"))>0:
@@ -637,7 +636,6 @@ class mqtwManager(mqtw):
 
     ## Order data columns. None values are set at the beginning
     def on_orderby_action_triggered(self):
-        print("MANAGER")
         action=QObject.sender(self)#Busca el objeto que ha hecho la signal en el slot en el que está conectado 
         self._sort_action_index=self.hh.index(action.text().replace(" (desc)",""))#Search the position in the headers of the action Text
         if action.text().find(self.tr(" (desc)"))>0:
