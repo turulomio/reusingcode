@@ -32,6 +32,11 @@ class ObjectManager(object):
     def append(self,  obj):
         self.arr.append(obj)
 
+    ## Appends and object if it isn't in array. Array will act as a set()
+    def append_distinct(self, obj):
+        if obj not in self.arr:
+            self.append(obj)
+
     def remove(self, obj):
         self.arr.remove(obj)
 
