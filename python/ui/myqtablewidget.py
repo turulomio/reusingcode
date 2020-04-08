@@ -73,6 +73,8 @@ class mqtw(QWidget):
         self._none_at_top=True
         self._sort_action_reverse=None#Needed for first setData
         self._ordering_enabled=False
+        self.selected=None #Must be initializated
+        self.selected_items=None
         
     ## Sets if ordering must be enabled
     ## In mqtw id False by default. In mqtwManager and mqtwObjects is True by default
@@ -581,7 +583,8 @@ class mqtwObjects(mqtw):
                 self.selected=[]
                 for i in self.table.selectedItems():
                     self.selected_items.append(i)
-                self.selected=self.data[i.row()][len(self.data[i.row()])-1]
+                    if i.column()==0:
+                        self.selected=self.object(i.row())
             elif self.table.selectionBehavior()==QAbstractItemView.SelectRows and self.table.selectionMode()==QAbstractItemView.MultiSelection:
                 # In this case returns a list or rows for items and a list of objects for values
                 error("selected_items fails if there is a wdgBool due to selecteditems only shows QTableWidgetItem")
