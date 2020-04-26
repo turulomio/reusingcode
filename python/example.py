@@ -14,6 +14,7 @@ def frmAccess():
     makedirs(dir, exist_ok=True)
 
     command("cp ui/{0}.py {1}/{0}.py".format(args.example,dir))
+    command("cp ui/myqwidgets.py {0}/myqwidgets.py".format(dir))
     command("cp connection_pg.py {0}".format(dir))
     command("cp connection_pg_qt.py {0}".format(dir))
     command("cp translationlanguages.py {0}".format(dir))
