@@ -27,8 +27,7 @@ class MyNonModalQDialog(QDialog):
     def widgetsDisplayMode(self):
         return self._widgetsDisplayMode
 
-    ## @param wdg List of Widgets
-    ## @param vertical boolean. If true uses a QVBoxLayout
+    ## @param *widgets List of Widgets
     def setWidgets(self, *widgets):
         if self.widgetsDisplayMode()==WidgetsDisplayMode.Vertical:
             self.layout = QVBoxLayout(self)
