@@ -62,7 +62,7 @@ def frmSelector():
     chdir(dir)
     from frmSelector import example
     example()
-    
+
 def libmanagers():
     dir="/tmp/reusingcode_libmanagers"
     rmtree(dir, ignore_errors=True)
@@ -72,7 +72,17 @@ def libmanagers():
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/libmanagers.py".format(dir))
     command("python {}/libmanagers.py".format(dir))  
-    
+
+def connection_pg():
+    dir="/tmp/reusingcode_connection_pg"
+    rmtree(dir, ignore_errors=True)
+    makedirs(dir, exist_ok=True)
+
+    command("cp connection_pg.py {0}".format(dir))
+    command("cp casts.py {0}/casts.py".format(dir))
+    command("sed -i -e 's/\.casts/casts/' {}/connection_pg.py".format(dir))
+    command("python {}/connection_pg.py".format(dir))  
+
 def myQTableWidget():
     dir="/tmp/reusingcode_myqtablewidget"
     rmtree(dir, ignore_errors=True)
@@ -132,7 +142,7 @@ def addDebugSystem( level):
     info("Debug level set to {}".format(level))
 
 parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
-parser.add_argument('--example', action='store', choices=['wdgDatetime', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myqcharts', 'frmAccess'], required=True)
+parser.add_argument('--example', action='store', choices=['wdgDatetime', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myqcharts', 'frmAccess', 'connection_pg'], required=True)
 parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="DEBUG")
 args=parser.parse_args()
 
@@ -149,3 +159,5 @@ elif args.example=="myqcharts":
     myqcharts()
 elif args.example=="libmanagers":
     libmanagers()
+elif args.example=="connection_pg":
+    connection_pg()
