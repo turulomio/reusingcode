@@ -74,10 +74,8 @@ class MyConfigParser:
     ## Generate a [MyConfigParser] -> id if it's not created yet
     def __generate_key(self):
         if self.config.has_option("MyConfigParser","id") is False:
-            s=str(datetime.now()).encode("utf8")
-            print(s)
             h = SHA256.new()
-            h.update(s)
+            h.update(str(datetime.now()).encode("utf8"))
             self.set("MyConfigParser","id", h.hexdigest())
 
 if __name__ == '__main__':
