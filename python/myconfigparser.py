@@ -43,9 +43,8 @@ class MyConfigParser:
     def cget(self, section, option, key, default=None):
         a=AESCipher(key.rjust(16).encode("utf8"));
         value=self.get(section,option,default).encode("utf8")
-        print("Dato leido", value)
         deci=a.decrypt(value)
-        return deci
+        return deci.decode("utf8")
 
     def get(self, section, option, default=None):
         if self.config.has_option(section, option)==True:
