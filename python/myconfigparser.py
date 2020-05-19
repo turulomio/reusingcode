@@ -1,6 +1,9 @@
+
 from configparser import ConfigParser
 from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 from base64 import b64encode, b64decode
+from datetime import datetime
 from os import path, makedirs
 from Crypto import Random
 
@@ -34,14 +37,16 @@ class MyConfigParser:
             self.config.read(self.filename)
         else:
             print("Configuration file {} doesn't exist".format(self.filename))
+        self.__generate_key()
+        self.id=self.get("MyConfigParser","id")[:16]
 
-    def cset(self, section, option, value, key):
-        a=AESCipher(key.rjust(16).encode("utf8"));
+    def cset(self, section, option, value):
+        a=AESCipher(self.id.encode("utf8"));
         ci=a.encrypt(value.encode("utf8"))
         self.set(section,option,ci.decode("utf8"))
 
-    def cget(self, section, option, key, default=None):
-        a=AESCipher(key.rjust(16).encode("utf8"));
+    def cget(self, section, option, default=None):
+        a=AESCipher(self.id.encode("utf8"));
         value=self.get(section,option,default).encode("utf8")
         print("Dato leido", value)
         deci=a.decrypt(value)
@@ -67,12 +72,20 @@ class MyConfigParser:
         with open(self.filename, 'w') as f:
             self.config.write(f)
 
+    ## Generate a [MyConfigParser] -> id if it's not created yet
+    def __generate_key(self):
+        if self.config.has_option("MyConfigParser","id") is False:
+            s=str(datetime.now()).encode("utf8")
+            print(s)
+            h = SHA256.new()
+            h.update(s)
+            self.set("MyConfigParser","id", h.hexdigest())
 
 if __name__ == '__main__':
     c=MyConfigParser("prueba.ini")
     r=c.get("cpupower", "set_min_freq", "True")
     print("Readed option", r)
     c.set("cpupower", "set_min_freq", "False")
-    c.cset("cpupower", "buffer", "Mi texto", "My key")
+    c.cset("cpupower", "buffer", "Mi texto")
     c.save()
-    print("Readed c option", c.cget("cpupower", "buffer", "My key"))
+    print("Readed c option", c.cget("cpupower", "buffer"))
