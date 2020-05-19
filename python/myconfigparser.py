@@ -1,11 +1,15 @@
-
-from configparser import ConfigParser
+from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
+from .casts import str2bool, string2list_of_integers, string2list_of_strings, list2string
+from .datetime_functions import string2dtnaive
 from base64 import b64encode, b64decode
+from configparser import ConfigParser
 from datetime import datetime
+from decimal import Decimal
+from logging import debug
 from os import path, makedirs
-from Crypto import Random
+
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * bytes(chr(BS - len(s) % BS).encode("utf8") )
@@ -58,7 +62,59 @@ class MyConfigParser:
             self.set(section, option, default)
             return self.get(section, option)
 
+    def getDecimal(self, section,option, default=None):
+        try:
+            value=self.get(section, option, default)
+            return Decimal(value)
+        except:
+            debug("I couldn't convert to Decimal {} ({})".format(value, value.__class__))
+
+    def getFloat(self, section,option, default=None):
+        try:
+            value=self.get(section, option, default)
+            return float(value)
+        except:
+            debug("I couldn't convert to float {} ({})".format(value, value.__class__))
+
+    def getInteger(self, section,option, default=None):
+        try:
+            value=self.get(section, option, default)
+            return int(value)
+        except:
+            debug("I couldn't convert to int {} ({})".format(value, value.__class__))
+
+    def getBoolean(self, section,option, default=None):
+        try:
+            value=self.get(section, option, default)
+            return str2bool(value)
+        except:
+            debug("I couldn't convert to boolean {} ({})".format(value, value.__class__))
+
+    ## Example: self.value_datetime_naive("Version", "197001010000", "%Y%m%d%H%M")
+    def getDatetimeNaive(self, section, option, default=None, format="%Y%m%d%H%M"):
+        try:
+            value=self.get(section, option, default)
+            return string2dtnaive(value, format)
+        except:
+            debug("I couldn't convert to datetime naive {} ({})".format(value, value.__class__))
+
+    def getList(self, section, option, default):
+        try:
+            value=self.get(section, option, default)
+            return string2list_of_strings(value)
+        except:
+            debug("I couldn't convert to list of strings {} ({})".format(value, value.__class__))
+
+    def getListOfIntegers(self, section, option, default):
+        try:
+            value=self.get(section, option, default)
+            return string2list_of_integers(value)
+        except:
+            debug("I couldn't convert to list of integers {} ({})".format(value, value.__class__))
+
     def set(self, section, option, value):
+        if isinstance(value, list):
+            value=list2string(value)
         if section not in self.config:
             self.config.add_section(section)
             self.config[section]={}
@@ -80,9 +136,14 @@ class MyConfigParser:
 
 if __name__ == '__main__':
     c=MyConfigParser("prueba.ini")
-    r=c.get("cpupower", "set_min_freq", "True")
-    print("Readed option", r)
-    c.set("cpupower", "set_min_freq", "False")
-    c.cset("cpupower", "buffer", "Mi texto")
+    c.set("Example", "integer", 12134)
+    print ("Getting a integer",  c.getInteger("Example", "integer"))
+    print ("Getting a integer con default",  c.getInteger("Example", "integerdefault",  1))
+    print ("Getting a decimal",  c.getDecimal("Example", "decimal", 1212))
+    print("Getting a list", c.getList("Example", "list", ["hi", "bye"]))
+    print("Getting a list of integers", c.getList("Example", "list_integers", [1, 2, 3]))
+
+    c.cset("Example", "cstring", "Mi texto")
+    print("Getting a cstring", c.cget("Example", "cstring"))
+
     c.save()
-    print("Readed c option", c.cget("cpupower", "buffer"))
