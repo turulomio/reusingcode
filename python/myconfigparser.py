@@ -41,7 +41,7 @@ class MyConfigParser:
             self.config.read(self.filename)
         else:
             print("Configuration file {} doesn't exist".format(self.filename))
-        self.__generate_key()
+        self.__generate_id()
         self.id=self.get("MyConfigParser","id")[:16]
 
     def cset(self, section, option, value):
@@ -128,7 +128,7 @@ class MyConfigParser:
             self.config.write(f)
 
     ## Generate a [MyConfigParser] -> id if it's not created yet
-    def __generate_key(self):
+    def __generate_id(self):
         if self.config.has_option("MyConfigParser","id") is False:
             h = SHA256.new()
             h.update(str(datetime.now()).encode("utf8"))
