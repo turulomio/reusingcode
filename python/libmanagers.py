@@ -437,8 +437,7 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
         for number, o in enumerate(self.arr):
             s.add(Coord("A2").addRow(number), o.id, "WhiteRight")        
             s.add(Coord("B2").addRow(number), o.name, "WhiteLeft")
-        s.setSplitPosition("A1")
-        s.setCursorPosition(Coord("B2").addRow(self.length()))
+        s.freezeAndSelect("A1")
         return s
 
 ## Usefull when creating a class with two attributes self.id and self.name only
