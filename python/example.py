@@ -42,6 +42,22 @@ def wdgDatetime():
     command("pyuic5 ui/{0}.ui -o {1}/Ui_{0}.py".format(args.example, dir))
     command("python {1}/{0}.py".format(args.example, dir))
 
+def wdgYearMonth():
+    dir="/tmp/reusingcode_wdgyearmonth"
+    rmtree(dir, ignore_errors=True)
+    makedirs(dir, exist_ok=True)
+    path.insert(0, dir)
+
+    command("cp ui/{0}.py {1}/{0}.py".format(args.example,dir))
+    command("cp ui/myqwidgets.py {0}/myqwidgets.py".format(dir))
+    command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
+    command("sed -i -e 's/from \./from  /' {1}/{0}.py".format(args.example, dir))
+    command("pyuic5 ui/{0}.ui -o {1}/Ui_{0}.py".format(args.example, dir))
+
+    chdir(dir)
+    from wdgYearMonth import example
+    example()
+
 def frmSelector():
     dir="/tmp/reusingcode_frmselector"
     rmtree(dir, ignore_errors=True)
@@ -160,13 +176,15 @@ def addDebugSystem( level):
     info("Debug level set to {}".format(level))
 
 parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
-parser.add_argument('--example', action='store', choices=['wdgDatetime', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myconfigparser',  'myqcharts', 'frmAccess', 'connection_pg'], required=True)
+parser.add_argument('--example', action='store', choices=['wdgDatetime', 'wdgYearMonth', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myconfigparser',  'myqcharts', 'frmAccess', 'connection_pg'], required=True)
 parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="DEBUG")
 args=parser.parse_args()
 
 addDebugSystem(args.debug)
 if args.example=="wdgDatetime":
     wdgDatetime()
+elif args.example=="wdgYearMonth":
+    wdgYearMonth()
 elif args.example=="frmAccess":
     frmAccess()
 elif args.example=="frmSelector":
