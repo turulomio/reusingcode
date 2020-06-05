@@ -16,10 +16,10 @@ class MyArgParser(ArgumentParser):
         self.add_argument('--version', action='version', version=version)
         
     def addArgumentDebug(self, default="WARNING"):
-        self.debug_system=True
         self.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default=default)
 
     def __addDebugSystem(self, level):
+         self.debug_system=True
          logFormat = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s [%(module)s:%(lineno)d]"
          dateFormat='%F %I:%M:%S'
  
