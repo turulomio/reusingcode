@@ -35,10 +35,12 @@ def wdgDatetime():
     rmtree(dir, ignore_errors=True)
     makedirs(dir, exist_ok=True)
 
-    command("cp ui/{0}.py {1}/{0}.py".format(args.example,dir))
+    command("cp ui/{0}.py {1}/{0}.py".format(args.example, dir))
+    command("cp ui/myqdialog.py {}/myqdialog.py".format(dir))
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
     command("sed -i -e 's/\.Ui/Ui/' {1}/{0}.py".format(args.example, dir))
     command("sed -i -e 's/ \.\. / /' {1}/{0}.py".format(args.example, dir))
+    command("sed -i -e 's/ \.myqdialog / myqdialog /' {1}/{0}.py".format(args.example, dir))
     command("pyuic5 ui/{0}.ui -o {1}/Ui_{0}.py".format(args.example, dir))
     command("python {1}/{0}.py".format(args.example, dir))
 
