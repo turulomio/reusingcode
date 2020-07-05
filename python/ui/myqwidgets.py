@@ -12,6 +12,10 @@ def qmessagebox(text, resource=":/reusingcode/qmessagebox"):
     m.setText(text)
     m.exec_()
 
+
+def qmessagebox_developing():
+    qmessagebox(QApplication.transalte("Reusing", "This part is being developed."))
+
 ## Asks a a question to delete a file
 ## Returns True or False if file has been deleted
 def question_delete_file(filename):
