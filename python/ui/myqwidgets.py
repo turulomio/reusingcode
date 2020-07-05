@@ -14,15 +14,15 @@ def qmessagebox(text, resource=":/reusingcode/qmessagebox"):
 
 
 def qmessagebox_developing():
-    qmessagebox(QApplication.transalte("Reusing", "This part is being developed."))
+    qmessagebox(QApplication.translate("Reusing", "This part is being developed."))
 
 ## Asks a a question to delete a file
 ## Returns True or False if file has been deleted
 def question_delete_file(filename):
     reply = QMessageBox.question(
                     None, 
-                    QApplication.translate("Core", 'File deletion question'), 
-                    QApplication.translate("Core", "Do you want to delete this file:\n'{}'?").format(filename), 
+                    QApplication.translate("Reusing", 'File deletion question'), 
+                    QApplication.translate("Reusing", "Do you want to delete this file:\n'{}'?").format(filename), 
                     QMessageBox.Yes, 
                     QMessageBox.No
                 )
@@ -37,7 +37,7 @@ def question_delete_file(filename):
 def qmessagebox_question(text):
     reply = QMessageBox.question(
                     None, 
-                    QApplication.translate("Core", 'Please answer this question'), 
+                    QApplication.translate("Reusing", 'Please answer this question'), 
                     text, 
                     QMessageBox.Yes, 
                     QMessageBox.No
