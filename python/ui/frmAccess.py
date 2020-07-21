@@ -17,13 +17,55 @@ from PyQt5.QtWidgets import QDialog
 from logging import debug
 from os import environ
 from .Ui_frmAccess import Ui_frmAccess
-from .myqwidgets import qmessagebox
+from .myqwidgets import qmessagebox, qinputbox_string
 from .. connection_pg_qt import ConnectionQt
+from .. libmanagers import ObjectManager
 from .. translationlanguages import TranslationLanguageManager
 
 ##After execute it you can link to a singleton for example
 ##mem.settings=access.settings
 ##mem.con=access.con
+
+class Profile:
+    def __init__(self, name=None, user=None, server=None, db=None, port=None, language=None):
+        self.name=name
+        self.user=user
+        self.server=server
+        self.db=db
+        self.port=port
+        self.language=language
+        
+class ProfileManager(ObjectManager):
+    def __init__(self):
+        ObjectManager.__init__(self)
+        
+    def qcombobox(self, combo,  selected=None):
+        combo.blockSignals(True)
+        combo.clear()
+        for o in self:
+            combo.addItem(o.name)
+
+        #Force without signals to be in -1. There were problems when 0 is selected, becouse it didn't emit anything
+        combo.setCurrentIndex(-1)
+        if selected is None:
+            combo.blockSignals(False)
+        else:
+            combo.blockSignals(False)
+            combo.setCurrentIndex(combo.findData(selected.id))
+
+def ProfileManager_from_settings(settings, settingsSection):
+    r=ProfileManager()
+    for group in settings.childGroups():
+        if group.startswith(settingsSection+"_profile_"):
+            p=Profile()
+            p.name=group.replace(settingsSection+"_profile_", "")
+            p.user=settings.value(settingsSection+"_profile_" +"/user", "postgres" )
+            p.port=settings.value(settingsSection+"_profile_" +"/port", "5432" )
+            p.server=settings.value(settingsSection+"_profile_" +"/server", "127.0.0.1" )
+            p.db=settings.value(settingsSection+"_profile_" +"/db", "database" )
+            r.append(p)
+            print(p.name)
+    return r
 
 ## @param module From this string we get the module translation path and de root 
 ## @param settings_root string for example "frmAccess" or "frmSync"
@@ -40,8 +82,14 @@ class frmAccess(QDialog, Ui_frmAccess):
 
         self.setModal(True)
         self.setupUi(self)
+        self.setResources()
         self.resize(self.settings.value(self.settingsSection +"/qdialog_size", QSize(200, 60)))
         self.parent=parent
+        
+        self.profiles=ProfileManager_from_settings(self.settings, self.settingsSection)
+        self.profiles.qcombobox(self.cmbProfiles)
+        
+        
 
         self.languages=TranslationLanguageManager()
         self.languages.load_all()
@@ -69,12 +117,18 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.settings.setValue(self.settingsSection + "/qdialog_size", self.size())
         self.settings.sync()
 
-
-    def setResources(self, pixmap, icon):
-        self.icon= QIcon(icon)
-        self.pixmap=QPixmap(pixmap)
-        self.lblPixmap.setPixmap(self.pixmap)
-        self.setWindowIcon(self.icon)        
+    def setResources(   self, 
+                                        pixmap=":/reusingcode/frmaccess_pixmap.png", 
+                                        icon=":/reusingcode/frmaccess_icon.png",
+                                        database_new=":/reusingcode/database_new.png", 
+                                        profile_new=":/reusingcode/profile_new.png",
+                                        profile_delete=":/reusingcode/button_cancel.png"
+                                    ):
+        self.lblPixmap.setPixmap(QPixmap(pixmap))
+        self.setWindowIcon(QIcon(icon))
+        self.cmdDatabaseNew.setIcon(QIcon(database_new))
+        self.cmdProfileNew.setIcon(QIcon(profile_new))
+        self.cmdProfileDelete.setIcon(QIcon(profile_delete))
 
     def setTitle(self, text):
         self.setWindowTitle(text)
@@ -96,11 +150,11 @@ class frmAccess(QDialog, Ui_frmAccess):
 
     @pyqtSlot() 
     def on_cmdYN_accepted(self):
-        self.settings.setValue(self.settingsSection +"/db", self.txtDB.text() )
-        self.settings.setValue(self.settingsSection +"/port",  self.txtPort.text())
-        self.settings.setValue(self.settingsSection +"/user" ,  self.txtUser.text())
-        self.settings.setValue(self.settingsSection +"/server", self.txtServer.text())   
-        self.settings.setValue(self.settingsSection+"/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
+        self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() + "/db", self.txtDB.text() )
+        self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/port",  self.txtPort.text())
+        self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/user" ,  self.txtUser.text())
+        self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/server", self.txtServer.text())   
+        self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
         self.con.init__create(self.txtUser.text(), self.txtPass.text(), self.txtServer.text(), self.txtPort.text(), self.txtDB.text())
         self.con.connect()
         if self.con.is_active():
@@ -111,6 +165,12 @@ class frmAccess(QDialog, Ui_frmAccess):
     @pyqtSlot() 
     def on_cmdYN_rejected(self):
         self.reject()
+        
+        
+    def on_cmdProfileNew_released(self):
+        name=qinputbox_string(self.tr("Profile name"))
+        self.cmbProfiles.addItem(name)
+        self.settings.setValue(self.settingsSection +"/db", self.txtDB.text() )
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
@@ -120,5 +180,4 @@ if __name__ == '__main__':
     app = QApplication([])
     w=frmAccess("xulpymoney", "frmAccessExample")
     w.setLabel("Probe conection")
-    w.setResources(":/xulpymoney/books.png", ":/xulpymoney/books.png")
     w.exec_()
