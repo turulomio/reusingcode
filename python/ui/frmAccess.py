@@ -11,14 +11,15 @@
 ## access.setResources(":/calores.png","calores.png"
 ## access.exec_()
 
-from PyQt5.QtCore import pyqtSlot, QSettings, QSize
+from PyQt5.QtCore import pyqtSlot, QSettings, QSize, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox
 from logging import debug
 from os import environ
 from .Ui_frmAccess import Ui_frmAccess
 from .myqwidgets import qmessagebox, qinputbox_string
 from .. connection_pg_qt import ConnectionQt
+from .. admin_pg import AdminPG
 from .. translationlanguages import TranslationLanguageManager
 
 ##After execute it you can link to a singleton for example
@@ -29,6 +30,7 @@ from .. translationlanguages import TranslationLanguageManager
 ## @param settings_root string for example "frmAccess" or "frmSync"
 ## @param settings QSettings of the app. If it's None it creates a Qsettings object, and you can get it with self.settings
 class frmAccess(QDialog, Ui_frmAccess):
+    databaseCreated=pyqtSignal(str, AdminPG)
     def __init__(self, module, settingsSection, settings=None, parent = None):
         QDialog.__init__(self,  parent)
         if settings==None:
@@ -85,12 +87,14 @@ class frmAccess(QDialog, Ui_frmAccess):
                                         icon=":/reusingcode/frmaccess_icon.png",
                                         database_new=":/reusingcode/database_new.png", 
                                         profile_new=":/reusingcode/profile_new.png",
+                                        profile_update=":/reusingcode/profile_update.png", 
                                         profile_delete=":/reusingcode/button_cancel.png"
                                     ):
         self.lblPixmap.setPixmap(QPixmap(pixmap))
         self.setWindowIcon(QIcon(icon))
         self.cmdDatabaseNew.setIcon(QIcon(database_new))
         self.cmdProfileNew.setIcon(QIcon(profile_new))
+        self.cmdProfileUpdate.setIcon(QIcon(profile_update))
         self.cmdProfileDelete.setIcon(QIcon(profile_delete))
 
     def setTitle(self, text):
@@ -144,7 +148,8 @@ class frmAccess(QDialog, Ui_frmAccess):
         name=qinputbox_string(self.tr("Profile name"))
         self.cmbProfiles.addItem(name)
         self.settings.setValue(self.settingsSection +"/db", self.txtDB.text() )
-        
+
+
     def on_cmdProfileDelete_released(self):
         self.settings.remove(self.settingsSection+"_profile_" + self.cmbProfiles.currentText())
         self.cmbProfiles_update()        
@@ -172,6 +177,24 @@ class frmAccess(QDialog, Ui_frmAccess):
         else:
             self.cmbProfiles.blockSignals(False)
             self.cmbProfiles.setCurrentIndex(self.cmbProfiles.findData(selected.id))
+        
+    def on_cmdProfileUpdate_released(self):
+        pass
+        
+    def on_cmdDatabaseNew_released(self):
+        respuesta = QMessageBox.warning(self, self.windowTitle(), self.tr("Do you want to create {} database in {}?".format(self.txtDB.text(), self.cmbLanguages.currentText())), QMessageBox.Ok | QMessageBox.Cancel)
+        if respuesta==QMessageBox.Ok:
+            admin_pg=AdminPG(self.txtUser.text(), self.txtPass.text(),  self.txtServer.text(),  self.txtPort.text())
+                           
+            if admin_pg.db_exists(self.txtDB.text())==True:
+                qmessagebox(self.tr("Xulpymoney database already exists"))
+                return 
+
+            if admin_pg.create_db(self.txtDB.text())==False:
+                qmessagebox(self.newdb.error)
+            else:
+                qmessagebox(self.tr("Database '{}' created").format(self.txtDB.text()))        
+                self.databaseCreated.emit(self.txtDB.text(), admin_pg)
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
