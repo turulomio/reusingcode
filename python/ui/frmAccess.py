@@ -19,53 +19,11 @@ from os import environ
 from .Ui_frmAccess import Ui_frmAccess
 from .myqwidgets import qmessagebox, qinputbox_string
 from .. connection_pg_qt import ConnectionQt
-from .. libmanagers import ObjectManager
 from .. translationlanguages import TranslationLanguageManager
 
 ##After execute it you can link to a singleton for example
 ##mem.settings=access.settings
 ##mem.con=access.con
-
-class Profile:
-    def __init__(self, name=None, user=None, server=None, db=None, port=None, language=None):
-        self.name=name
-        self.user=user
-        self.server=server
-        self.db=db
-        self.port=port
-        self.language=language
-        
-class ProfileManager(ObjectManager):
-    def __init__(self):
-        ObjectManager.__init__(self)
-        
-    def qcombobox(self, combo,  selected=None):
-        combo.blockSignals(True)
-        combo.clear()
-        for o in self:
-            combo.addItem(o.name)
-
-        #Force without signals to be in -1. There were problems when 0 is selected, becouse it didn't emit anything
-        combo.setCurrentIndex(-1)
-        if selected is None:
-            combo.blockSignals(False)
-        else:
-            combo.blockSignals(False)
-            combo.setCurrentIndex(combo.findData(selected.id))
-
-def ProfileManager_from_settings(settings, settingsSection):
-    r=ProfileManager()
-    for group in settings.childGroups():
-        if group.startswith(settingsSection+"_profile_"):
-            p=Profile()
-            p.name=group.replace(settingsSection+"_profile_", "")
-            p.user=settings.value(settingsSection+"_profile_" +"/user", "postgres" )
-            p.port=settings.value(settingsSection+"_profile_" +"/port", "5432" )
-            p.server=settings.value(settingsSection+"_profile_" +"/server", "127.0.0.1" )
-            p.db=settings.value(settingsSection+"_profile_" +"/db", "database" )
-            r.append(p)
-            print(p.name)
-    return r
 
 ## @param module From this string we get the module translation path and de root 
 ## @param settings_root string for example "frmAccess" or "frmSync"
@@ -86,8 +44,7 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.resize(self.settings.value(self.settingsSection +"/qdialog_size", QSize(200, 60)))
         self.parent=parent
         
-        self.profiles=ProfileManager_from_settings(self.settings, self.settingsSection)
-        self.profiles.qcombobox(self.cmbProfiles)
+        
         
         
 
@@ -99,10 +56,16 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.con=ConnectionQt()#Pointer to connection
         
         self.setTitle(self.tr("Log in PostreSQL database"))
-        self.txtDB.setText(self.settings.value(self.settingsSection +"/db", "" ))
-        self.txtPort.setText(self.settings.value(self.settingsSection +"/port", "5432"))
-        self.txtUser.setText(self.settings.value(self.settingsSection +"/user", "postgres" ))
-        self.txtServer.setText(self.settings.value(self.settingsSection +"/server", "127.0.0.1" ))
+        
+        self.cmbProfiles_update()
+        current_profile=self.settings.value(self.settingsSection+"/current_profile", "")
+        if current_profile=="":
+            self.txtDB.setText(self.settings.value(self.settingsSection +"/db", "" ))
+            self.txtPort.setText(self.settings.value(self.settingsSection +"/port", "5432"))
+            self.txtUser.setText(self.settings.value(self.settingsSection +"/user", "postgres" ))
+            self.txtServer.setText(self.settings.value(self.settingsSection +"/server", "127.0.0.1" ))
+        else:
+            self.cmbProfiles.setCurrentText(current_profile)
         
     ## Reimplements QDialog.exec_ method to make an autologin if PGPASSWORD environment variable is detected.
     def exec_(self):
@@ -147,6 +110,15 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.settings.setValue(self.settingsSection+"/language", self.languages.selected.id)
         self.languages.cambiar(self.languages.selected.id, self.module)
         self.retranslateUi(self)
+        
+        
+    @pyqtSlot(str)
+    def on_cmbProfiles_currentTextChanged(self, stri):
+        self.txtDB.setText(self.settings.value(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() + "/db", "xulpymoney"))
+        self.txtPort.setText(self.settings.value(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() + "/port", "5432"))
+        self.txtUser.setText(self.settings.value(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() + "/user", "postgres"))
+        self.txtServer.setText(self.settings.value(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() + "/server", "127.0.0.1"))
+
 
     @pyqtSlot() 
     def on_cmdYN_accepted(self):
@@ -155,6 +127,7 @@ class frmAccess(QDialog, Ui_frmAccess):
         self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/user" ,  self.txtUser.text())
         self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/server", self.txtServer.text())   
         self.settings.setValue(self.settingsSection +"_profile_" + self.cmbProfiles.currentText() +"/language", self.cmbLanguages.itemData(self.cmbLanguages.currentIndex()))
+        self.settings.setValue(self.settingsSection + "/current_profile", self.cmbProfiles.currentText())
         self.con.init__create(self.txtUser.text(), self.txtPass.text(), self.txtServer.text(), self.txtPort.text(), self.txtDB.text())
         self.con.connect()
         if self.con.is_active():
@@ -171,6 +144,34 @@ class frmAccess(QDialog, Ui_frmAccess):
         name=qinputbox_string(self.tr("Profile name"))
         self.cmbProfiles.addItem(name)
         self.settings.setValue(self.settingsSection +"/db", self.txtDB.text() )
+        
+    def on_cmdProfileDelete_released(self):
+        self.settings.remove(self.settingsSection+"_profile_" + self.cmbProfiles.currentText())
+        self.cmbProfiles_update()        
+        
+    ## @return List of string with profile names
+    def __list_of_profiles(self):  
+        r=[]
+        for group in self.settings.childGroups():
+            if group.startswith(self.settingsSection+"_profile_"):
+                r.append(group.replace(self.settingsSection+"_profile_", ""))
+        print(r)
+        return r
+
+    def cmbProfiles_update(self, selected=None):
+        profiles=self.__list_of_profiles()
+        self.cmbProfiles.blockSignals(True)
+        self.cmbProfiles.clear()
+        for profile in profiles:
+            self.cmbProfiles.addItem(profile)
+
+        #Force without signals to be in -1. There were problems when 0 is selected, becouse it didn't emit anything
+        self.cmbProfiles.setCurrentIndex(-1)
+        if selected is None:
+            self.cmbProfiles.blockSignals(False)
+        else:
+            self.cmbProfiles.blockSignals(False)
+            self.cmbProfiles.setCurrentIndex(self.cmbProfiles.findData(selected.id))
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
