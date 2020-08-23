@@ -1,11 +1,16 @@
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
+## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
+
+#    Esta clase la cree después de probar la app django-sitemaps, tenía cosas buenas, tree, breadcumb, title
+#    Era muy complicada y luego me liaba cuando el menu necesitaba parámetros
+
+#    You need to create a menu in app.context_processor.py
+
+
 from django import template
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
-"""
-    Esta clase la cree después de probar la app django-sitemaps, tenía cosas buenas, tree, breadcumb, title
-    Era muy complicada y luego me liaba cuando el menu necesitaba parámetros
-"""
 
 class Action:
     ## @param name
@@ -170,35 +175,16 @@ class Menu:
 register = template.Library()
 
 
+
 @register.simple_tag(takes_context=True)
 def mymenu(context):
     user=context['user']
     url_name=context['request'].resolver_match.url_name
-    return format_html(menu.render_menu(user,url_name))
+    return format_html(context['menu'].render_menu(user,url_name))
 
 @register.simple_tag(takes_context=True)
 def mypagetitle(context):
+    # return the version value as a dictionary
+    # you may add other values here as well
     url_name=context['request'].resolver_match.url_name
-    return  menu.render_pagetitle(url_name)
-
-
-global menu    
-menu=Menu(_("Django Money"))
-menu.append(Action(_("Home"), None,  "home"))
-menu.append(Action(_("Banks"), None,  "bank_list"))
-    #
-    #menu.append(Action(_("Add author"), ['books.add_author', ], "author-add"))
-    #
-    #menu.append(Action(_("My valorations"), ['books.search_valoration'], "valoration-list"))
-    #
-    #grQuerys=Group(1, _("Queries"), "12")
-    #grQuerys.append(Action(_("Most valued books"), ['books.create_valoration', ], "query_books_valued"))
-    #grQuerys.append(Action(_("Unfinished books"), ['books.create_valoration', ], "unfinished-books"))
-    #
-    #grStatistics=Group(1, _("Statistics"), "13")
-    #grStatistics.append(Action(_("Global"),['books.statistics_global',], "statistics-global"))
-    #grStatistics.append(Action(_("User"),['books.statistics_user',], "statistics-user"))
-    #
-    #menu.append(grQuerys)
-    #menu.append(grStatistics)
-
+    return  context['menu'].render_pagetitle(url_name)
