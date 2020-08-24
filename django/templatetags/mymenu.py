@@ -14,14 +14,16 @@ from django.urls import reverse_lazy
 
 class Action:
     ## @param name
-    ## @param permissions. List of string if None is always showed
-    def __init__(self,name,permissions,url):
+    ## @param permissions. List of string if None or [] is always showed
+    ## @param authenticated Boolean. If True user needs to be logged
+    def __init__(self,name,permissions,url,authenticated):
         self.name=name
         self.permissions=permissions
         self.url=url
+        self.authenticated=authenticated
 
     def render(self, userpers, user, current_url_name):
-        if self.__has_all_user_permissions(userpers) or user.is_superuser:
+        if self.__has_all_user_permissions(user, userpers):
             if self.is_selected(current_url_name):
                 return """<li class="Selected"><a class="Selected" href="{}">{}</a></li>\n""".format(reverse_lazy(self.url),self.name)
             else:
@@ -34,16 +36,21 @@ class Action:
         if current_url_name==self.url:
             return True
         return False
-       
-       
-    def __has_all_user_permissions(self, userpers):
-        if self.permissions is None:
+
+    def __has_all_user_permissions(self, user, userpers):
+        if user.is_superuser:
             return True
 
-        for p in self.permissions:
-            if p not in userpers:
-                return False
-        return True
+        if user.is_authenticated==self.authenticated:
+            if self.permissions is None:
+                return True
+
+            for p in self.permissions:
+                if p not in userpers:
+                    return False
+            return True
+        else:
+            return False
 
 ## Can have actions or other menus
 """
@@ -71,11 +78,12 @@ class Action:
 ## Arr can be actions or a group object
 ## No tiene permisos, busca en las acciones internas.
 class Group:
-    def __init__(self,level,name, id):
+    def __init__(self,level,name, id, authenticated):
         self.arr=[]
         self.level=level
         self.name=name
         self.id=id
+        self.authenticated=authenticated
         
     ## Search for some permissions, not all
     def __user_has_some_children_permissions(self, userpers):
@@ -102,7 +110,7 @@ class Group:
     
     def render(self, userpers, user, current_url_name):
         r=""
-        if self.__user_has_some_children_permissions(userpers) or user.is_superuser:
+        if (self.__user_has_some_children_permissions(userpers) and user.is_authenticated==self.authenticated) or user.is_superuser:
             collapsing="" if self.has_selected_actions(current_url_name) is True else "collapse"
             r=r+"""<li><a href="#" class="toggle-custom" id="btn-{0}" data-toggle="collapse" data-target="#submenu{0}" aria-expanded="false">{1} ...</a>\n""".format(self.id,self.name)
             r=r+"""<ul class="nav """+collapsing+""" nav_level_{0}" id="submenu{1}" role="menu" aria-labelledby="btn-{1}">\n""".format(self.level+1,self.id)
