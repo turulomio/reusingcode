@@ -2,7 +2,7 @@
 
 cp python/objects/currency.py python_plain/
 
-cp python/objects/percentage.py python_plain/
+#cp python/objects/percentage.py python_plain/
 
 cp python/github.py python_plain/
 
@@ -27,4 +27,4 @@ cp python/libmanagers.py python_plain/
 sed -i -e 's/ \.call_by_name/ call_by_name/' python_plain/libmanagers.py
 sed -i -e 's/\.datetime_functions/datetime_functions/' python_plain/libmanagers.py
 
-print "If some files aren't in python_plain is due to they don't have internal package dependencies"
+echo "If some files aren't in python_plain is due to they don't have internal package dependencies"
