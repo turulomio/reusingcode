@@ -357,11 +357,11 @@ def months(year_from, month_from, year_to=None, month_to=None):
 
 if __name__ == "__main__":
     tz="Europe/Madrid"
-    now=datetime.now()
+    now=dtnaive_now()
     print("Current localzone is", tz)
     print ("DtNaive:",  now)
     now_aware=dtaware(now.date(), now.time(), tz)
-    print("DtAware:", now_aware)
+    print("DtAware:", now_aware, "With dtaware_now", dtaware_now(tz))
     epochms=dtaware2epochms(now_aware)
     print("Epoch in miliseconds:", epochms)
     print("Dtaware reconverting epoch {}".format(epochms2dtaware(epochms, tz)) )
