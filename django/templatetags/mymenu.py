@@ -83,7 +83,7 @@ class Group:
         self.name=name
         self.id=id
         self.authenticated=authenticated
-        
+
     ## Search for some permissions, not all
     def __user_has_some_children_permissions(self, userpers):
         for p in self.get_all_permissions():
@@ -92,8 +92,8 @@ class Group:
             if p in userpers:
                 return True
         return False
-        
-    def get_all_permissions(self):        
+
+    def get_all_permissions(self):
         r=set()
         for item in self.arr:
             if item.__class__==Group:
@@ -106,7 +106,7 @@ class Group:
                 for p in item.permissions:
                     r.add(p)
         return r
-    
+
     def render(self, userpers, user, current_url_name):
         r=""
         if (self.__user_has_some_children_permissions(userpers) and user.is_authenticated==self.authenticated) or user.is_superuser:
@@ -131,10 +131,18 @@ class Group:
                 if item.is_selected(current_url_name) is True:
                     return True
             else: #Group
-                return self.has_selected_actions(current_url_name)
+                return item.has_selected_actions(current_url_name)
         return False
 
 
+    def find_action_by_url(self, url_name):
+        for item in self.arr:
+            if item.__class__==Group:
+                return item.find_action_by_url(url_name)
+            else:#Action
+                if item.url==url_name:
+                    return item
+        return None
 
 
 
@@ -171,9 +179,7 @@ class Menu:
     def find_action_by_url(self,url_name):
         for item in self.arr:
             if item.__class__==Group:
-                for action in item.arr:
-                    if action.url==url_name:
-                        return action
+                return item.find_action_by_url(url_name)
             else:#Action
                 if item.url==url_name:
                     return item
