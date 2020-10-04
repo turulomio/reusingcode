@@ -9,8 +9,8 @@ class LinealRegression:
         self.Y=[]
 
     def append(self, y, x):
-        self.X.append(x)
-        self.Y.append(y)
+        self.X.append(float(x))
+        self.Y.append(float(y))
 
     def set_lists(self, list_y, list_x):
         if len(list_y)!=len(list_x):
