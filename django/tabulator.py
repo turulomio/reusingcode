@@ -116,15 +116,15 @@ class TabulatorCommons:
             if self.types[i] in ("datetime", "date"):
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}"}}, \n"""
             elif self.types[i] in ("Decimal", "float", "int") and self.bottomcalc[i] is None:
-                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", hozAlign:"right" , formatter: NUMBER {filterheader} }}, \n"""
+                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", hozAlign:"right" , formatter: NUMBER, {filterheader} }}, \n"""
             elif self.types[i] in ("Decimal", "float", "int") and self.bottomcalc[i] is not None:
-                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", hozAlign:"right",  formatter: NUMBER, bottomCalc:"{self.bottomcalc[i]}" {filterheader} }}, \n"""
+                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", hozAlign:"right",  formatter: NUMBER, bottomCalc:"{self.bottomcalc[i]}", {filterheader} }}, \n"""
             elif self.types[i] in ("Decimal6", "float6") and self.bottomcalc[i] is None:
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", hozAlign:"right" , formatter: NUMBER,  formatterParams:{{"digits":6}},  {filterheader} }}, \n"""
             elif self.types[i] in ("Decimal6", "float6") and self.bottomcalc[i] is not None:
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", hozAlign:"right",  formatter: NUMBER,  formatterParams:{{"digits":6}}, bottomCalc:"{self.bottomcalc[i]}", {filterheader} }}, \n"""
             elif self.types[i] =="EUR" and self.bottomcalc[i] is None:
-                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", minWidth:100,  formatter: NUMBER, formatterParams:{{"suffix": "€"}}, hozAlign:"right", {filterheader}, {filterheader} }}, \n"""
+                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", minWidth:100,  formatter: NUMBER, formatterParams:{{"suffix": "€"}}, hozAlign:"right", {filterheader} }}, \n"""
             elif self.types[i] =="EUR" and self.bottomcalc[i] is not None:
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", minWidth:100, formatter: NUMBER, formatterParams:{{"suffix": "€"}}, hozAlign:"right", bottomCalc:"{self.bottomcalc[i]}",bottomCalcFormatter: NUMBER, bottomCalcFormatterParams:{{"suffix": "€"}}, {filterheader} }}, \n"""
             elif self.types[i] =="USD" and self.bottomcalc[i] is None:
@@ -132,7 +132,7 @@ class TabulatorCommons:
             elif self.types[i] =="USD" and self.bottomcalc[i] is not None:
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", minWidth:100, formatter: NUMBER, formatterParams:{{"suffix": "$"}},  hozAlign:"right", bottomCalc:"{self.bottomcalc[i]}",bottomCalcFormatter: NUMBER, bottomCalcFormatterParams:{{"suffix": "$"}}, {filterheader} }}, \n"""
             elif self.types[i]=="str":
-                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", {filterheader} }}, \n"""            
+                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", {filterheader} }}, \n"""
             elif self.types[i]=="bool":
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", formatter:"tickCross", hozAlign:"center", {filterheader} }}, \n"""
             elif self.types[i] =="percentage" and self.bottomcalc[i] is None:

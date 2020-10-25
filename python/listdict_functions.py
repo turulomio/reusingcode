@@ -6,6 +6,10 @@ def listdict_has_key(listdict, key):
         return False
     return key in listdict
 
+def listdict_print(listdict):
+    for row in listdict:
+        print(row)
+
 def listdict_sum(listdict, key, ignore_nones=True):
     r=0
     for d in listdict:
