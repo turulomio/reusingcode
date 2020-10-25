@@ -7,6 +7,7 @@
 //   - id. Name of the element 
 //   - url. Ajax request url
 //   - buttontext. Button text
+//   - showbuttonafter. Attribute without value. If missing hides the button after connection
 //   - csrf_token
 class AjaxButton extends HTMLElement {
   constructor() {
@@ -19,6 +20,7 @@ class AjaxButton extends HTMLElement {
     } else{
       this.id="ajax_button";
     }
+    
 
     if (this.hasAttribute("url")==true){
       this.url=this.getAttribute("url");
@@ -36,6 +38,12 @@ class AjaxButton extends HTMLElement {
       this.csrf_token=this.getAttribute("csrf_token");
     } else{
       alert("An ajax-button component must have a csrf_token attribute");
+    }
+
+    if (this.hasAttribute("showbuttonafter")==false){
+      this.showbuttonafter=false;
+    } else{
+      this.showbuttonafter=true;
     }
 
     this.form=document.createElement("form");
@@ -68,7 +76,9 @@ class AjaxButton extends HTMLElement {
             },
             success: function(result) {
                 $("#"+this_.id+"_div").html(result);
-                $("#"+this_.button_id).hide();
+                if (this_.showbuttonafter==false){
+                  $("#"+this_.button_id).hide();
+                }
            },
            error: function(result) {
                 $("#"+this_.div_id).html('<p>"Something is wrong"</p>');

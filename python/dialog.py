@@ -1,3 +1,5 @@
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
+## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 #from os import system
 from subprocess import run, PIPE
 #from xulpymoney.libmanagers import ObjectManager_With_IdName, Object_With_IdName
