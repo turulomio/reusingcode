@@ -34,6 +34,11 @@ def listdict_print(listdict):
     for row in listdict:
         print(row)
 
+def listdict_print_first(listdict):
+    print("Printing first dict in a listdict")
+    for key, value in listdict[0].items():
+        print(f"    - {key}: {value}")
+
 def listdict_sum(listdict, key, ignore_nones=True):
     r=0
     for d in listdict:
