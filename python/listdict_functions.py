@@ -3,7 +3,8 @@
 
 ## Class that return a object to manage listdict
 class ListDictObject:
-    def __init__(self,ld):
+    def __init__(self,ld, name=None):
+        self.name=self.__class__.__name__ if name is None else name
         self.ld=ld
 
     def length(self):
