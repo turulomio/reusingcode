@@ -1,6 +1,29 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
+## Class that return a object to manage listdict
+class ListDictObject:
+    def __init__(self,ld):
+        self.ld=ld
+
+    def length(self):
+        return len(self.ld)
+
+    def has_key(self,key):
+        return listdict_has_key(self.ld,key)
+
+    def print(self):
+        listdict_print(self.ld)
+
+    def sum(self, key, ignore_nones=True):
+        return listdict_sum(self.ld, key, ignore_nones)
+
+    def list(self, key, sorted=True):
+        return listdict2list(self.ld, key, sorted)
+
+    def average_ponderated(self, key_numbers, key_values):
+        return listdict_average_ponderated(self.ld, key_numbers, key_values)
+
 def listdict_has_key(listdict, key):
     if len(listdict)==0:
         return False
@@ -49,3 +72,12 @@ def listdict2dict(listdict, key):
     for ld in listdict:
         d[ld[key]]=ld
     return d
+
+## Returns a list from a listdict key
+def listdict2list(listdict, key, sorted=True):
+    r=[]
+    for ld in listdict:
+        r.append(ld[key])
+    if sorted is True:
+        r.sort()
+    return r
