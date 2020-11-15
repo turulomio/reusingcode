@@ -6,40 +6,29 @@
 
 
 
-## Class that return a object to manage a dict
 ## El objetivo es crear un objeto list_dict que se almacenera en self.ld con funciones set
 ## set_from_db #Todo se carga desde base de datos con el minimo parametro posible
 ## set_from_db_and_variables #Preguntara a base datos aquellas variables que falten. Aunque no estén en los parámetros p.e. money_convert
 ## set_from_variables #Solo con variables
 ## set #El listdict ya está hecho pero se necesita el objeto para operar con el
-class Do:
-    def __init__(self):
-        pass
-
-    def number_keys(self):
-        return len(self.do)
-
-    def has_key(self,key):
-        return key in listdict
-
-    def print(self):
-        listdict_print(self.ld)
-
-    def set(self, do):
-        self.do=do
-        self.create_attributes(self.do)
-        return self
-
-    def is_set(self):
-        if hasattr(self, "do"):
-            return True
-        print("You must set your dictionary")
-        return False
-    
-    ## Creates an attibute from a key
-    def create_attributes(self, do):
-        for key, value in do.items():
-            setattr(self, key, value)
+##class Do:
+##    def __init__(self,d):
+##        self.d=d
+##        self.create_attributes()
+##
+##    def number_keys(self):
+##        return len(self.d)
+##
+##    def has_key(self,key):
+##        return key in self.d
+##
+##    def print(self):
+##        listdict_print(self.d)
+##
+##    ## Creates an attibute from a key
+##    def create_attributes(self):
+##        for key, value in self.d.items():
+##            setattr(self, key, value)
 
 
 
@@ -52,6 +41,7 @@ class Do:
 ## set #El listdict ya está hecho pero se necesita el objeto para operar con el
 class Ldo:
     def __init__(self, name=None):
+        print("LDO IS DEPRECATED")
         self.name=self.__class__.__name__ if name is None else name
         self.ld=[]
 
@@ -86,6 +76,9 @@ class Ldo:
             return True
         print(f"You must set your listdict in {name}")
         return False
+
+    def append(self,o):
+        self.ld.append(o)
 
 def listdict_has_key(listdict, key):
     if len(listdict)==0:
