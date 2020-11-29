@@ -83,7 +83,7 @@ class Ldo:
 def listdict_has_key(listdict, key):
     if len(listdict)==0:
         return False
-    return key in listdict
+    return key in listdict[0]
 
 def listdict_print(listdict):
     for row in listdict:
