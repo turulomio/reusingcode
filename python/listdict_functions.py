@@ -41,7 +41,6 @@
 ## set #El listdict ya está hecho pero se necesita el objeto para operar con el
 class Ldo:
     def __init__(self, name=None):
-        print("LDO IS DEPRECATED")
         self.name=self.__class__.__name__ if name is None else name
         self.ld=[]
 
