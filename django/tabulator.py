@@ -196,6 +196,7 @@ class TabulatorCommons:
         var table_{self.name} = new Tabulator("#{self.name}", {{
             clipboard:true, //enable clipboard functionality
             selectable:true,
+            tooltips:true,
             persistence: true, 
             printAsHtml:true, //enable html table printing
             printStyled:true, //copy Tabulator styling to HTML table
