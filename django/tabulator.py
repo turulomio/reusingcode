@@ -21,6 +21,8 @@ class TabulatorCommons:
         self.field_pk="id"
         self.show_field_pk=False
         self.initial_options=None
+        self.after_creation_js_code=None
+        self.after_creation_html_code=None
         self.layout="fitDataTable"
         self.show_last_record=True
         
@@ -40,8 +42,17 @@ class TabulatorCommons:
     def setFilterHeaders(self, *args):
         self.filterheaders=args
 
+    ## Used to add code inside the tabulator object
     def setInitialOptions(self, s):
         self.initial_options=s
+
+    ## Used to add code after the tabulator object creation. No need to add <script>
+    def setJSCodeAfterObjectCreation(self, s):
+        self.after_creation_js_code=s
+
+    ## Used to add code after the tabulator object creation. No need to add <script>
+    def setHTMLCodeAfterObjectCreation(self, s):
+        self.after_creation_html_code=s
         
     def setBottomCalc(self, *args):
         self.bottomcalc=args
@@ -62,6 +73,8 @@ class TabulatorCommons:
     
     ## Render from listdict
     def render(self):
+        if len(self.listdict)==0:
+             return "There are no records"
         ## Fills bottomCalc if None
         if self.bottomcalc is None:
             self.bottomcalc=[None]*len(self.fields)
@@ -87,6 +100,8 @@ class TabulatorCommons:
 
         str_height="" if self.height is None else f'height: "{self.height}",'
         str_initialoptions="" if self.initial_options is None else self.initial_options
+        str_after_creation_js_code="" if self.after_creation_js_code is None else self.after_creation_js_code
+        str_after_creation_html_code="" if self.after_creation_html_code is None else self.after_creation_html_code
         
         if self.destiny_url is None:
             str_destiny_url=""
@@ -177,15 +192,15 @@ class TabulatorCommons:
 }};    
 
     
-        var tabledata = {tb_list};  
-        var table = new Tabulator("#{self.name}", {{
+        var tabledata_{self.name} = {tb_list};  
+        var table_{self.name} = new Tabulator("#{self.name}", {{
             clipboard:true, //enable clipboard functionality
             selectable:true,
             persistence: true, 
             printAsHtml:true, //enable html table printing
             printStyled:true, //copy Tabulator styling to HTML table
             {str_height}
-            data:tabledata, //assign data to table
+            data:tabledata_{self.name}, //assign data to table
             layout:"{self.layout}", //fit columns to width of table (optional)
             columns:[ {columns}
             ],
@@ -217,7 +232,9 @@ class TabulatorCommons:
         }});
         
         {str_show_last_record}
+        {str_after_creation_js_code}
     </script>
+    {str_after_creation_html_code}
     """
     
 #            alert(last.getData().id)
