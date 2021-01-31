@@ -79,6 +79,19 @@ class Ldo:
     def append(self,o):
         self.ld.append(o)
 
+    def first(self):
+        return self.ld[0] if self.length()>0 else None
+
+    ## Return list keys of the first element[21~
+    def first_keys(self):
+        if self.length()>0:
+            return self.first().keys()
+        else:
+            return "I can't show keys"
+    
+    def order_by(self, key, reverse=False):
+        self.ld=sorted(self.ld,  key=lambda item: item[key], reverse=reverse)
+
 def listdict_has_key(listdict, key):
     if len(listdict)==0:
         return False
