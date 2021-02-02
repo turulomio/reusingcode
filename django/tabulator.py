@@ -147,7 +147,7 @@ class TabulatorCommons:
             elif self.types[i] =="USD" and self.bottomcalc[i] is not None:
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", minWidth:100, formatter: NUMBER, formatterParams:{{"suffix": "$"}},  hozAlign:"right", bottomCalc:"{self.bottomcalc[i]}",bottomCalcFormatter: NUMBER, bottomCalcFormatterParams:{{"suffix": "$"}}, {filterheader} }}, \n"""
             elif self.types[i]=="str":
-                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", {filterheader} }}, \n"""
+                columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", formatter: STRING, {filterheader}  }},\n"""
             elif self.types[i]=="bool":
                 columns=columns+f"""{{title: "{self.headers[i]}", field:"{self.fields[i]}", formatter:"tickCross", hozAlign:"center", {filterheader} }}, \n"""
             elif self.types[i] =="percentage" and self.bottomcalc[i] is None:
@@ -160,38 +160,38 @@ class TabulatorCommons:
     <div id="{self.name}" class="tabulator"></div>
     <script>
     var NUMBER = function(cell, formatterParams){{
-    if (formatterParams.hasOwnProperty('suffix')){{
-        suffix=" ".concat(formatterParams.suffix);
-    }} else {{
-        suffix="";
-    }}
-    if (formatterParams.hasOwnProperty('digits')){{
-        digits=formatterParams.digits;
-    }} else {{
-        digits=2;
-    }}
-    if (cell.getValue() == null) {{return "- - -";}}
-    else if (cell.getValue()==0){{//Must be before '' ??
-        return 0+ suffix;
-    }}
-    else if (cell.getValue() == '') {{return "";}}
-    else if (cell.getValue()<0){{
-       cell.getElement().style.color="#ff0000";
-        return cell.getValue().toFixed(digits) + suffix;
-    }}
-    else if (cell.getValue()>0){{
-        return cell.getValue().toFixed(digits) + suffix;
-    }}
- /*   try {{
-        return cell.getValue().toFixed(digits) + suffix;
-    }}
-    catch(err) {{
-        console.log(value);
-        return "- - - - -";
-    }}*/
-}};    
+        if (formatterParams.hasOwnProperty('suffix')){{
+            suffix=" ".concat(formatterParams.suffix);
+        }} else {{
+            suffix="";
+        }}
+        if (formatterParams.hasOwnProperty('digits')){{
+            digits=formatterParams.digits;
+        }} else {{
+            digits=2;
+        }}
+        if (cell.getValue() == null) {{return "- - -";}}
+        else if (cell.getValue()==0){{//Must be before '' ??
+            return 0+ suffix;
+        }}
+        else if (cell.getValue() == '') {{return "";}}
+        else if (cell.getValue()<0){{
+           cell.getElement().style.color="#ff0000";
+            return cell.getValue().toFixed(digits) + suffix;
+        }}
+        else if (cell.getValue()>0){{
+            return cell.getValue().toFixed(digits) + suffix;
+        }}
+    }};    
 
-    
+    var STRING = function(cell, formatterParams){{
+        if (cell.getValue() == null || cell.getValue() == "None") {{
+            return "";
+        }} else {{
+            return cell.getValue();
+        }}
+        
+    }};
         var tabledata_{self.name} = {tb_list};  
         var table_{self.name} = new Tabulator("#{self.name}", {{
             clipboard:true, //enable clipboard functionality
