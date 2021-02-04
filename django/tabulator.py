@@ -8,7 +8,7 @@ from django.urls import reverse
 
 class TabulatorCommons:
     def __init__(self, name):
-        self.name=name
+        self.name=name #Name of the table. Div that contains it is self.name _div. Data is self.name _data
         
         self.destiny_url=None
         self.destiny_type=None # To render different click functions
@@ -91,9 +91,9 @@ class TabulatorCommons:
             tb_list.append(new_d)
                         
         if self.show_last_record is True and len(tb_list)>0:
-            str_show_last_record="""        
-                var last = table.getRowFromPosition(tabledata.length-1, true);
-                table.scrollToRow(last.getData().id, "top", true);
+            str_show_last_record=f""" 
+                var last = {self.name}.getRowFromPosition({self.name}_data.length-1, true);
+                {self.name}.scrollToRow(last.getData().id, "top", true);
             """
         else:
             str_show_last_record=""
@@ -157,7 +157,7 @@ class TabulatorCommons:
 
 
         return f"""
-    <div id="{self.name}" class="tabulator"></div>
+    <div id="{self.name}_div" class="tabulator"></div>
     <script>
     var NUMBER = function(cell, formatterParams){{
         if (formatterParams.hasOwnProperty('suffix')){{
@@ -192,8 +192,8 @@ class TabulatorCommons:
         }}
         
     }};
-        var tabledata_{self.name} = {tb_list};  
-        var table_{self.name} = new Tabulator("#{self.name}", {{
+        var {self.name}_data = {tb_list};
+        var {self.name} = new Tabulator("#{self.name}_div", {{
             clipboard:true, //enable clipboard functionality
             selectable:true,
             tooltips:true,
@@ -201,7 +201,7 @@ class TabulatorCommons:
             printAsHtml:true, //enable html table printing
             printStyled:true, //copy Tabulator styling to HTML table
             {str_height}
-            data:tabledata_{self.name}, //assign data to table
+            data:{self.name}_data, //assign data to table
             layout:"{self.layout}", //fit columns to width of table (optional)
             columns:[ {columns}
             ],
@@ -211,13 +211,13 @@ class TabulatorCommons:
                 {{
                     label:"Copy to clipboard",
                     action:function(e, column){{
-                        table.copyToClipboard("all");
+                        {self.name}.copyToClipboard("all");
                     }}
                 }},               
                 {{
                     label:"Print",
                     action:function(e, column){{
-                        table.print();
+                        {self.name}.print();
                     }}
                 }},
                 {{
@@ -226,46 +226,26 @@ class TabulatorCommons:
                 {{
                     label:"Export to xlsx",
                     action:function(e, column){{
-                        table.download("xlsx", "data.xlsx", {{sheetName:"MyData"}}); 
+                        {self.name}.download("xlsx", "data.xlsx", {{sheetName:"MyData"}}); 
                     }}
                 }}
             ]
         }});
-        
+
         {str_show_last_record}
         {str_after_creation_js_code}
     </script>
     {str_after_creation_html_code}
     """
-    
-#            alert(last.getData().id)
-#        table.selectRow(last.getData().id);
-#        rows = table.getRows(true);
-#        last=rows[rows.length -1].getData()
-#       
-#        scrollToRowPosition: "bottom", //position row in the center of the table when scrolled to
-#        table.selectRow(69);
-#        table.selectRow(table.getRows().length);    for (let i = 0; i < tabledata.length; i++) {{
-#      if (tabledata[i].amount < 0) {{
-#      alert(tabledata[i].amount);
-#        tabledata[i].amount = "<span class='red'>" + tabledata[i].amount*100 + "</span>";
-#      }} else {{
-#        tabledata[i].amount = '$' + tabledata[i].amount;
-#      }}
-#    }}
-#        dataSorted:function(sorters, rows){{
-#            this.scrollToRow(rows[rows.length -1].id, "bottom", true)
-#        }},
+
 class TabulatorFromQuerySet(TabulatorCommons):
     def __init__(self, name):
         TabulatorCommons.__init__(self, name)
         self.callbyname=[]
         self.queryset=None
-        
 
     def setCallByNames(self, *args):
         self.callbyname=args
-        
         ##Select wich fields from listdict, generated from callbyname
         self.fields=[]
         for cbn in self.callbyname:
@@ -329,7 +309,7 @@ def tb_listdict(listdict, translate, localzone):
             d[field]=object_to_tb(row[field], translate, localzone)
         r.append(d)
     return r
-    
+
 def object_to_tb(object, translate, localzone):
         if object.__class__.__name__ in ["str"]:
             return object if translate is False else gettext(object)
@@ -350,4 +330,3 @@ def object_to_tb(object, translate, localzone):
                 return ""
         else:
             return str(object)
-
