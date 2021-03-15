@@ -147,10 +147,20 @@ def listdict2dict(listdict, key):
     return d
 
 ## Returns a list from a listdict key
-def listdict2list(listdict, key, sorted=True):
+## @param listdict
+## @param key String with the key to extract
+## @param sorted Boolean. If true sorts final result
+## @param cast String. "str", "float", casts the content of the key
+def listdict2list(listdict, key, sorted=False, cast=None):
     r=[]
     for ld in listdict:
-        r.append(ld[key])
+        if cast is None:
+            r.append(ld[key])
+        elif cast == "str":
+            r.append(str(ld[key]))
+        elif cast == "float":
+            r.append(float(ld[key]))
     if sorted is True:
         r.sort()
     return r
+
