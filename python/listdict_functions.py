@@ -168,10 +168,27 @@ def listdict2list(listdict, key, sorted=False, cast=None):
     return r
 
 def listdict2json(listdict):
-    r=[]
+    r="["
     for o in listdict:
         d={}
         for field in o.keys():
             d[field]=var2json(o[field])
-        r.append(d)
+        r=r+str(d).replace("': 'null'", "': null") +","
+    r=r[:-1]+"]"
     return r
+
+
+
+
+if __name__ == "__main__":
+    from datetime import datetime, date
+    from decimal import Decimal
+    ld=[]
+    ld.append({"a": datetime.now(), "b": date.today(), "c": Decimal(12.32), "d": None, "e": int(12), "f":None})
+    print(listdict2json(ld))
+
+
+    def print_lor(lor):
+        print("")
+        for row in lor:
+            print(row)

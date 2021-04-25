@@ -268,7 +268,11 @@ def var2json(var):
         return float(var)
     elif var.__class__.__name__=="datetime":
         return var.isoformat()[:-6]+"Z"
+    elif var.__class__.__name__=="date":
+        return str(var)
     elif var.__class__.__name__=="bool":
+        return dumps(var)
+    elif var is None:
         return dumps(var)
     return var
 
@@ -303,3 +307,6 @@ if __name__ == "__main__":
     d=Decimal("12.3")
     json_d=var2json(d)
     print (d, json_d)
+    d=None
+    json_d=var2json(d)
+    print (d, json_d, json_d.__class__)
