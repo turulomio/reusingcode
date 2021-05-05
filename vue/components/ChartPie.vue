@@ -4,7 +4,7 @@
         <v-card flat  v-if="items.length>0">
             <v-row no-gutters :style="styleheight">
                 <v-col>
-                    <v-chart autoresize :option="options" :key="$vnode.key"/>
+                    <v-chart autoresize :option="options" :key="key"/>
                 </v-col>
                 <v-col v-show="showtable" >
                     <v-data-table dense :headers="tableHeaders"  :items="items" class="elevation-1" disable-pagination  hide-default-footer :sort-by="['value']" :sort-desc="['value']">
@@ -46,7 +46,7 @@
         data: function () {
             return {
                 showtable: false,
-                total: 0,
+                key:0,
                 tableHeaders: [
                     { text: 'Name', value: 'name',sortable: true },
                     { text: 'Value', value: 'value',sortable: true, align: 'right'},
@@ -89,20 +89,21 @@
                 } else {
                     return "Show table data"
                 }
+            },
+            total: function(){
+                console.log("computed total")
+                return this.items.reduce((accum,item) => accum + item.value, 0)
             }
         },
         methods: {
             buttonClick(){
                 this.showtable=!this.showtable
+                this.key=this.key+1
             },
             getPercentage(item){
                 return `${(item.value/this.total*100).toFixed(2)} %`
                 
             }
         },
-        mounted(){
-            this.total=this.items.reduce((accum,item) => accum + item.value, 0)
-        }
     }
 </script>
-
