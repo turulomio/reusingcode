@@ -22,6 +22,9 @@ class Action:
         self.authenticated=authenticated
         self.parent=None
 
+    def __str__(self):
+        return f"Action: {self.name} ({self.url})"
+
     def render(self, userpers, user, current_url_name):
         if self.__has_all_user_permissions(user, userpers):
             if self.is_selected(current_url_name):
@@ -97,6 +100,11 @@ class Group:
         self.authenticated=authenticated
         self.parent=None
 
+
+    def __str__(self):
+        return f"Group: {self.name} ({self.id})"
+
+
     ## Search for some permissions, not all
     def __user_has_some_children_permissions(self, userpers):
         for p in self.get_all_permissions():
@@ -109,7 +117,7 @@ class Group:
     def get_all_permissions(self):
         r=set()
         for item in self.arr:
-            if item.__class__==Group:
+            if item.__class__.__name__=="Group":
                 for p in item.get_all_permissions():
                     r.add(p)
             else:#Action
@@ -127,7 +135,7 @@ class Group:
             r=r+"""<li><a href="#" class="toggle-custom" id="btn-{0}" data-toggle="collapse" data-target="#submenu{0}" aria-expanded="false">{1} ...</a>\n""".format(self.id,self.name)
             r=r+"""<ul class="nav """+collapsing+""" nav_level_{0}" id="submenu{1}" role="menu" aria-labelledby="btn-{1}">\n""".format(self.level+1,self.id)
             for item in self.arr:
-                if item.__class__==Group:
+                if item.__class__.__name__=="Group":
                     r=r+item.render(userpers, user,current_url_name)
                 else:#Action
                     r=r+item.render(userpers, user, current_url_name)
@@ -144,7 +152,7 @@ class Group:
             children:["""
         if (self.__user_has_some_children_permissions(userpers) and user.is_authenticated==self.authenticated) or user.is_superuser:
             for item in self.arr:
-                if item.__class__==Group:
+                if item.__class__.__name__=="Group":
                     r=r+item.rendervue(userpers, user,current_url_name)
                 else:#Action
                     r=r+item.rendervue(userpers, user, current_url_name)
@@ -154,12 +162,15 @@ class Group:
         return r
 
     def append(self,o):
-        o.parent=self
+        if o.__class__.__name__=="Action":
+            o.parent=self
+        else: #Group
+            o.parent=self
         self.arr.append(o)
 
     def has_selected_actions(self,current_url_name):
         for item in self.arr:
-            if item.__class__==Action:
+            if item.__class__.__name__=="Action":
                 if item.is_selected(current_url_name) is True:
                     return True
             else: #Group
@@ -169,7 +180,7 @@ class Group:
 
     def find_action_by_url(self, url_name):
         for item in self.arr:
-            if item.__class__==Group:
+            if item.__class__.__name__=="Group":
                 return item.find_action_by_url(url_name)
             else:#Action
                 if item.url==url_name:
@@ -222,14 +233,15 @@ class Menu:
         r=[]
         r.append(action.url)
         tmp=action
+        print(tmp, tmp.parent)
         while tmp.parent!=None:
-            print(tmp.__class__.__name__)
-            if tmp.__class__=="Action":
+            if tmp is None:
+                continue
+            if tmp.parent.__class__.__name__=="Action":
                 r.insert(0, tmp.parent.url)
             else:
                 r.insert(0, tmp.parent.name)
             tmp=tmp.parent
-        print(r)
         return r
 
     ## Renders an HTML menu
@@ -259,8 +271,10 @@ class Menu:
 
     def find_action_by_url(self,url_name):
         for item in self.arr:
-            if item.__class__==Group:
-                return item.find_action_by_url(url_name)
+            if item.__class__.__name__=="Group":
+                search= item.find_action_by_url(url_name)
+                if search is not None:
+                    return search
             else:#Action
                 if item.url==url_name:
                     return item
