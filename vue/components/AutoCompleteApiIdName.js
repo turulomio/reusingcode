@@ -1,61 +1,66 @@
+
 Vue.component('autocompleteapi-idname', {
+    props: {
+        value: {
+            required: true
+        },
+        url:{
+            // Must be defined as `${this.$store.state.apiroot}/api/find/
+            // This path can get search=name, and id=id
+            required: true
+        },
+        id:{
+            default: "id"
+        },
+        name:{
+            default: "name"
+        },
+        label:{
+            default: "Select an item"
+        },
+        minchars:{
+            type: Number,
+            default: 2
+        }
+    },
     template: `
     <div>
-        <p>HOLA</p>
-        <v-card>ADIOS</v-card>
         <v-autocomplete
             v-model="localValue"
-            :items="items"
+            :items="entries"
             :loading="isLoading"
             :search-input.sync="search"
             item-text="name"
-            item-value="url"
-            :no-data-text="You must select a item"
-            hide-selected
+            item-value="id"
+            no-data-text="You must select a item"
             outlined
             persistent-hint
-            :label="Select a contact"
+            :label="label"
             placeholder="Start typing to Search"
             prepend-icon="mdi-database-search"
         ></v-autocomplete>
     </div>
     `,
-    props: {
-        value: {
-            required: true
+    data: function(){
+        return {
+            descriptionLimit: 60,
+            entries: [],
+            isLoading: false,
+            search: null,
+            localValue: null
         }
-    },
-    data: () => ({
-        descriptionLimit: 60,
-        entries: [],
-        isLoading: false,
-        search: null,
-        localValue: null
-    }),
-
-    computed: {
-        items () {
-            let r=[]
-            this.entries.forEach(entry => r.push({"url": entry.url, "name":this.fullName(entry)}))
-            return r
-        },
-    },
-    methods:{
-        fullName(entry){
-                return `${entry.name} ${entry.surname} ${entry.surname2}`
-        },
     },
     watch: {
         search (val) {
             // Items have already been loaded
-            if (this.items.length > 0) return
+            if (this.search ==null || this.search==""|| this.search.length<this.minchars) return
 
             // Items have already been requested
             if (this.isLoading) return
 
             this.isLoading = true
 
-            axios.get(`${this.$store.state.apiroot}/api/find/?search=${val}`, this.myheaders())
+            axios.get(`${this.url}?search=${val}`, myheaders())
             .then((response) => {
                 this.entries=response.data 
                 this.canclick=true;
@@ -74,4 +79,19 @@ Vue.component('autocompleteapi-idname', {
             console.log(`value changed to ${newValue}`)
         }
     },
+    mounted(){
+        if (this.value!=null){
+            axios.get(`${this.url}?id=${this.value}`, myheaders())
+            .then((response) => {
+                console.log(response.data)
+                this.entries=response.data
+                this.localValue=response.data.id
+                this.canclick=true;
+            }, (error) => {
+                console.log(error)
+                this.canclick=true;
+            })
+            .finally(() => (this.isLoading = false));
+        }
+    }
 })
