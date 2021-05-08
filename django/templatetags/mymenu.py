@@ -303,7 +303,6 @@ def mymenuvuetree(context):
     user=context['user']
     url_name=context['request'].resolver_match.url_name
     s=context['request'].menu.render_menuvuetree(user,url_name)
-    print(s)
     return s
 
 
