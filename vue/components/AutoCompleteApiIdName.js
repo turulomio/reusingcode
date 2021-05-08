@@ -62,36 +62,36 @@ Vue.component('autocompleteapi-idname', {
 
             axios.get(`${this.url}?search=${val}`, myheaders())
             .then((response) => {
-                this.entries=response.data 
-                this.canclick=true;
+                this.entries=response.data
             }, (error) => {
                 this.parseResponseError(error)
-                this.canclick=true;
             })
             .finally(() => (this.isLoading = false));
         },
         localValue (newValue) {
             this.$emit('input', newValue)
-            console.log(`LocalValue changed and emited input to ${newValue}`)
+//             console.log(`LocalValue changed and emited input to ${newValue}`)
         },
         value (newValue) {
             this.localValue = newValue
-            console.log(`value changed to ${newValue}`)
+//             console.log(`value changed to ${newValue}`)
+        },
+    },
+    methods: {
+        forceValue(force){       
+            if (force!=null){
+                axios.get(`${this.url}?id=${force}`, myheaders())
+                .then((response) => {
+                    this.entries=response.data
+                    this.localValue=response.data.id
+                }, (error) => {
+                    console.log(error)
+                })
+                .finally(() => (this.isLoading = false));
+            }
         }
     },
     mounted(){
-        if (this.value!=null){
-            axios.get(`${this.url}?id=${this.value}`, myheaders())
-            .then((response) => {
-                console.log(response.data)
-                this.entries=response.data
-                this.localValue=response.data.id
-                this.canclick=true;
-            }, (error) => {
-                console.log(error)
-                this.canclick=true;
-            })
-            .finally(() => (this.isLoading = false));
-        }
+        this.forceValue(this.value)
     }
 })
