@@ -73,7 +73,7 @@ class Ldo:
     def is_set(self):
         if hasattr(self, "ld"):
             return True
-        print(f"You must set your listdict in {name}")
+        print(f"You must set your listdict in {self.name}")
         return False
 
     def append(self,o):
