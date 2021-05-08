@@ -230,6 +230,8 @@ class Menu:
 
     def get_parents_by_url_name(self, url_name):
         action=self.find_action_by_url(url_name)
+        if action is None: #It's not in menu
+            return []
         r=[]
         r.append(action.url)
         tmp=action
