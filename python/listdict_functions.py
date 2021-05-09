@@ -173,6 +173,9 @@ def listdict2list(listdict, key, sorted=False, cast=None):
     return r
 
 def listdict2json(listdict):
+    if len(listdict)==0:
+        return "[]"
+
     r="["
     for o in listdict:
         d={}
