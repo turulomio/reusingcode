@@ -272,6 +272,10 @@ def var2json(var):
         return str(var)
     elif var.__class__.__name__=="bool":
         return dumps(var)
+    elif var.__class__.__name__=="Percentage":
+        return dumps(var2json(var.value))
+    elif var.__class__.__name__=="Currency":
+        return dumps(var2json(var.value))
     elif var is None:
         return dumps(var)
     return var
