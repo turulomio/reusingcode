@@ -2,6 +2,7 @@
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 from colorama import Style, Fore
 from decimal import Decimal
+from getpass import getpass
 from os import system
 from platform import system as platform_system
 
@@ -112,6 +113,19 @@ def input_string(text,default="", allow_blank=True):
         except:
             pass
 
+def input_password(text, allow_blank=False):
+    while True:
+        res=getpass(Style.BRIGHT+text+": " + Fore.YELLOW)
+        print(Style.RESET_ALL, end="")
+        try:
+            if res==None or res=="":
+                if allow_blank is False:
+                    continue
+            res=str(res)
+            return res
+        except:
+            pass
+
 ## Function to wait until a key is pressed
 def press_key_to_continue():
     if platform_system()=="Windows":
@@ -127,4 +141,5 @@ if __name__ == '__main__':
     print(ans)
     ans=input_string("What's your name with default?", "Name")
     print(ans)
-    
+    ans=input_password("Add your password")
+    print(ans)
