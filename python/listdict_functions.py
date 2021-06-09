@@ -140,11 +140,19 @@ def listdict_sum_positives(listdict, key):
     return r
 
 
+def listdict_average(listdict, key):
+    return listdict_sum(listdict,key)/len(listdict)
+
 def listdict_average_ponderated(listdict, key_numbers, key_values):
     prods=0
     for d in listdict:
         prods=prods+d[key_numbers]*d[key_values]
     return prods/listdict_sum(listdict, key_numbers)
+
+
+def listdict_median(listdict, key):
+    from statistics import median
+    return median(listdict2list(listdict, key, sorted=True))
 
 
 ## Converts a listdict to a dict using key as new dict key
