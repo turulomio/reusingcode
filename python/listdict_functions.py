@@ -189,7 +189,7 @@ def listdict2json(listdict):
         d={}
         for field in o.keys():
             d[field]=var2json(o[field])
-        r=r+str(d).replace("': 'null'", "': null") +","
+        r=r+str(d).replace("': 'null'", "': null").replace("': 'true'", "': true").replace("': 'false'", "': false") +","
     r=r[:-1]+"]"
     return r
 
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     from datetime import datetime, date
     from decimal import Decimal
     ld=[]
-    ld.append({"a": datetime.now(), "b": date.today(), "c": Decimal(12.32), "d": None, "e": int(12), "f":None})
+    ld.append({"a": datetime.now(), "b": date.today(), "c": Decimal(12.32), "d": None, "e": int(12), "f":None, "g":True, "h":False})
     print(listdict2json(ld))
 
 

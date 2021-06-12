@@ -310,7 +310,10 @@ if __name__ == "__main__":
 
     d=Decimal("12.3")
     json_d=var2json(d)
-    print (d, json_d)
+    print (d, json_d, json_d.__class__)
     d=None
+    json_d=var2json(d)
+    print (d, json_d, json_d.__class__)
+    d=True
     json_d=var2json(d)
     print (d, json_d, json_d.__class__)
