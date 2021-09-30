@@ -113,8 +113,11 @@ def connection_pg():
 
     command("cp connection_pg.py {0}".format(dir))
     command("cp casts.py {0}/casts.py".format(dir))
+    command("cp currency.py {0}/currency.py".format(dir))
+    command("cp percentage.py {0}/percentage.py".format(dir))
     command("sed -i -e 's/\.casts/casts/' {}/connection_pg.py".format(dir))
     command("python {}/connection_pg.py".format(dir))  
+
 def myconfigparser():
     dir="/tmp/reusingcode_myconfigparser"
     rmtree(dir, ignore_errors=True)
