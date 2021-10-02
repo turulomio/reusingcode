@@ -175,6 +175,61 @@ class Connection:
             self.password=getpass()
         return self.password
 
+    def unogenerator_values_in_sheet(self,doc, coord_start, sql, params=[], columns_header=0, color_row_header=0xffdca8, color_column_header=0xc0FFc0, color=0xFFFFFF, styles=None):
+        from unogenerator.commons import Coord as C, guess_object_style
+        cur=self._con.cursor()
+        s=self.mogrify(sql, params)
+        cur.execute(s)
+        rows=cur.fetchall()
+        cur.close()
+        coord_start=C.assertCoord(coord_start)
+
+        keys=[]
+        for desc in cur.description:
+            keys.append(desc.name)
+
+        for column,  key in enumerate(keys):       
+            doc.addCellWithStyle(coord_start.addColumnCopy(column), key, color_row_header, "BoldCenter")
+        coord_data=coord_start.addRowCopy(1)
+
+        #Data
+        for row, od in enumerate(rows):
+            for column, key in enumerate(keys):
+                if styles is None:
+                    style=guess_object_style(od[key])
+                elif styles.__class__.__name__ != "list":
+                    style=styles
+                else:
+                    style=styles[column]
+    
+                if column+1<=columns_header:
+                    color_=color_column_header
+                else:
+                    color_=color
+
+                doc.addCellWithStyle(coord_data.addRowCopy(row).addColumnCopy(column), od[key], color_, style)
+
+    ## @params columns_widths must be a list
+    def unogenerator_sheet(self, filename,  sql, params=[], sheet_name="Data", columns_widths=None, columns_header=0, color_row_header=0xffdca8, color_column_header=0xc0FFc0, color=0xFFFFFF, styles=None):
+        from unogenerator import ODS_Standard, __version__
+        doc=ODS_Standard()
+        doc.setMetadata(
+            "Query result",  
+            "Query result", 
+            "Connection_pg from https://github.com/turulomio/reusingcode/", 
+            f"This file have been generated with ConnectionPg and UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator/",
+            ["unogenerator", "sql", "query"]
+        )
+        doc.createSheet(sheet_name)
+        if columns_widths is not None:
+            doc.setColumnsWidth(columns_widths)
+
+        self.unogenerator_values_in_sheet(doc, "A1", sql, params,columns_header, color_row_header, color_column_header,  color, styles)
+        doc.removeSheet(0)
+        doc.save(filename)
+        doc.close()
+
+
 ## Function that adds an argparse argument group with connection parameters
 ## @param parser Argparse object
 ## @param gettext_module Gettext module
@@ -223,6 +278,6 @@ if __name__ == "__main__":
     con=script_with_connection_arguments("connection_pg_demo", "This is a connection script demo",  "Developed by Mariano Muñoz", "",  None, None)
     print("Is connection active?",  con.is_active())
     if con.is_active():
-        con.execute("SELECT datname FROM pg_database WHERE datistemplate = false;")
-        print(con.last_sql)
-    
+        sql="select name, setting, sourceline, pending_restart from pg_settings"
+        con.unogenerator_sheet("prueba.ods",  sql, columns_widths=(10,10,4,4))
+        print("File prueba.ods has been generated")
