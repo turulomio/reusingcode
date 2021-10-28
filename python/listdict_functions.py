@@ -100,8 +100,23 @@ def listdict_has_key(listdict, key):
         return False
     return key in listdict[0]
 
-def listdict_order_by(ld, key, reverse=False):
-    return sorted(ld,  key=lambda item: item[key], reverse=reverse)
+
+## Order data columns. None values are set at the beginning
+def listdict_order_by(ld, key, reverse=False, none_at_top=True):
+    nonull=[]
+    null=[]
+    for o in ld:
+        com=o[key]
+        if com is None:
+            null.append(o)
+        else:
+            nonull.append(o)
+    nonull=sorted(nonull, key=lambda item: item[key], reverse=reverse)
+    if none_at_top==True:#Set None at top of the list
+        return null+nonull
+    else:
+        return nonull+null
+
 
 
 def listdict_print(listdict):
@@ -125,6 +140,8 @@ def listdict_sum(listdict, key, ignore_nones=True):
             continue
         r=r+d[key]
     return r
+
+
 
 
 def listdict_sum_negatives(listdict, key):
@@ -197,7 +214,13 @@ def listdict2json(listdict):
     r=r[:-1]+"]"
     return r
 
+## Returns the max of a key in listdict
+def listdict_max(listdict, key):
+    return max(listdict2list(listdict,key))
 
+## Returns the min of a key in listdict
+def listdict_min(listdict, key):
+    return min(listdict2list(listdict,key))
 
 
 if __name__ == "__main__":
