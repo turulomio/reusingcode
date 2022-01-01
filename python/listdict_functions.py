@@ -201,6 +201,28 @@ def listdict2list(listdict, key, sorted=False, cast=None):
         r.sort()
     return r
 
+
+## Returns a list from a listdict key, with distinct values, not all values
+## @param listdict
+## @param key String with the key to extract
+## @param sorted Boolean. If true sorts final result
+## @param cast String. "str", "float", casts the content of the key
+def listdict2list_distinct(listdict, key, sorted=False, cast=None):
+    set=Set()
+    for ld in listdict:
+        if cast is None:
+            set.add(ld[key])
+        elif cast == "str":
+            set.add(str(ld[key]))
+        elif cast == "float":
+            set.add(float(ld[key]))
+    r=list(set)
+    if sorted is True:
+        r.sort()
+    return r
+
+
+
 def listdict2json(listdict):
     if len(listdict)==0:
         return "[]"
