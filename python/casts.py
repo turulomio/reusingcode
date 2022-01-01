@@ -15,8 +15,7 @@ from inspect import currentframe
 ## Example f(_("Hello {name}"))
 def f(s):
     frame = currentframe().f_back
-    return eval(f"f'{s}'", frame.f_locals, frame.f_globals)
-
+    return eval(f'f"""{s}"""', frame.f_locals, frame.f_globals)
 
 def valueORempty(v):
     return "" if v is None else v
