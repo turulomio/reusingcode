@@ -176,7 +176,14 @@ def listdict_median(listdict, key):
     return median(listdict2list(listdict, key, sorted=True))
 
 
-## Converts a listdict to a dict using key as new dict key
+## Converts a listdict to a dict using key as new dict key, and value as the key of the value field
+def listdict2dictkv(listdict, key, value):
+    d={}
+    for ld in listdict:
+        d[ld[key]]=ld[value]
+    return d
+
+## Converts a listdict to a dict using key as new dict key, and the dict as a value
 def listdict2dict(listdict, key):
     d={}
     for ld in listdict:
@@ -257,3 +264,5 @@ if __name__ == "__main__":
         print("")
         for row in lor:
             print(row)
+            
+    print(listdict2dictkv(ld, "a","b"))
