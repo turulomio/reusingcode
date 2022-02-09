@@ -445,8 +445,8 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
         doc.addRowWithStyle("A1", titles, ColorsNamed.Orange, "BoldCenter")
         for number, o in enumerate(self.arr):
             doc.addCellWithStyle(Coord("A2").addRow(number), o.id)        
-            doc.addCellWithStyle(Coord("B2").addRow(number), o.name)
-        doc.freezeAndSelect("A1")
+            doc.addCellWithStyle(Coord("B2").addRow(number), str(o.name))
+        doc.freezeAndSelect("A2")
 
 ## Usefull when creating a class with two attributes self.id and self.name only
 class Object_With_IdName:
