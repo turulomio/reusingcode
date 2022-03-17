@@ -2,6 +2,7 @@
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
 from casts import var2json
+from collections import OrderedDict
 
 
 
@@ -215,15 +216,15 @@ def listdict2list(listdict, key, sorted=False, cast=None):
 ## @param sorted Boolean. If true sorts final result
 ## @param cast String. "str", "float", casts the content of the key
 def listdict2list_distinct(listdict, key, sorted=False, cast=None):
-    set=Set()
+    set_=set()
     for ld in listdict:
         if cast is None:
-            set.add(ld[key])
+            set_.add(ld[key])
         elif cast == "str":
-            set.add(str(ld[key]))
+            set_.add(str(ld[key]))
         elif cast == "float":
-            set.add(float(ld[key]))
-    r=list(set)
+            set_.add(float(ld[key]))
+    r=list(set_)
     if sorted is True:
         r.sort()
     return r
@@ -251,6 +252,34 @@ def listdict_max(listdict, key):
 def listdict_min(listdict, key):
     return min(listdict2list(listdict,key))
 
+## Converts a list of ordereddict to a list of rows. ONLY DATA
+## @params keys If None we must suppose is an ordered dict or keys will be randomized
+def listdict2listofrows(lod,  keys=None):
+    if len(lod)==0:
+        return []
+        
+    if keys is None:
+        keys=lod[0].keys()
+        
+    r=[]  
+    for od in lod:
+        row_r=[]
+        for key in keys:
+            row_r.append(od[key])
+        r.append(row_r)
+    return r
+
+def listdict2listofordereddicts(ld, keys):
+    if len(ld)==0:
+        return []
+                
+    r=[]  
+    for d in ld:
+        r_d=OrderedDict()
+        for key in keys:
+            r_d[key]=d[key]
+        r.append(r_d)
+    return r
 
 if __name__ == "__main__":
     from datetime import datetime, date
