@@ -125,10 +125,14 @@ def myconfigparser():
 
     command("cp myconfigparser.py {0}".format(dir))
     command("cp casts.py {0}/casts.py".format(dir))
+    command("cp currency.py {0}/".format(dir))
+    command("cp percentage.py {0}/".format(dir))
+    
     command("cp datetime_functions.py {0}/datetime_functions.py".format(dir))
     command("sed -i -e 's/\.casts/casts/' {}/myconfigparser.py".format(dir))
     command("sed -i -e 's/\.datetime_functions/datetime_functions/' {}/myconfigparser.py".format(dir))
-    command("python {}/myconfigparser.py".format(dir))  
+    command("python {}/myconfigparser.py --example".format(dir))  
+    command("python {}/myconfigparser.py --cset prueba.ini#CSET#Manual#12".format(dir))  
 
 def myQTableWidget():
     dir="/tmp/reusingcode_myqtablewidget"

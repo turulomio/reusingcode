@@ -135,15 +135,37 @@ class MyConfigParser:
             self.set("MyConfigParser","id", h.hexdigest())
 
 if __name__ == '__main__':
-    c=MyConfigParser("prueba.ini")
-    c.set("Example", "integer", 12134)
-    print ("Getting a integer",  c.getInteger("Example", "integer"))
-    print ("Getting a integer con default",  c.getInteger("Example", "integerdefault",  1))
-    print ("Getting a decimal",  c.getDecimal("Example", "decimal", 1212))
-    print("Getting a list", c.getList("Example", "list", ["hi", "bye"]))
-    print("Getting a list of integers", c.getList("Example", "list_integers", [1, 2, 3]))
+    from argparse import ArgumentParser, RawTextHelpFormatter
+    parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--example', action='store_true', default=False)
+    parser.add_argument('--cset', action="store", help="Sets a value with cset in the form file#section#key#value", default=None)
+    args=parser.parse_args()
 
-    c.cset("Example", "cstring", "Mi texto")
-    print("Getting a cstring", c.cget("Example", "cstring"))
 
-    c.save()
+    if args.example is True:
+        c=MyConfigParser("prueba.ini")
+        c.set("Example", "integer", 12134)
+        print ("Getting a integer",  c.getInteger("Example", "integer"))
+        print ("Getting a integer con default",  c.getInteger("Example", "integerdefault",  1))
+        print ("Getting a decimal",  c.getDecimal("Example", "decimal", 1212))
+        print("Getting a list", c.getList("Example", "list", ["hi", "bye"]))
+        print("Getting a list of integers", c.getList("Example", "list_integers", [1, 2, 3]))
+
+        c.cset("Example", "cstring", "Mi texto") 
+        print("Getting a cstring", c.cget("Example", "cstring"))
+
+        c.save()
+
+
+    if args.cset is not None: #ONLY CAN BE EXECUTED WITH EXAMPLE
+        try:
+            file_, section, key, value= args.cset.split("#")
+        except:
+            print("Something wrong. You must set --cset in the form file#section#key#value")
+        if not path.exists(file_):
+            print(f"{file_} doesn't exist")
+            exit(0)
+       
+        c=MyConfigParser(file_)
+        c.cset(section,key,value)
+        c.save()
