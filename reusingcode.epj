@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project reusingcode",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-05-28, 19:50:17"
+    "saved": "2022-05-28, 20:06:48"
   },
   "project": {
     "AUTHOR": "",
@@ -50,7 +50,8 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
-      "README.md"
+      "README.md",
+      "reusingcode.epj"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -66,20 +67,35 @@
     },
     "RESOURCES": [],
     "SOURCES": [
+      "PyQt5/connection_pg_qt.py",
+      "PyQt5/frmAccess.py",
+      "PyQt5/frmSelector.py",
+      "PyQt5/myqcharts.py",
+      "PyQt5/myqdialog.py",
+      "PyQt5/myqlineedit.py",
+      "PyQt5/myqtablewidget.py",
+      "PyQt5/myqwidgets.py",
+      "PyQt5/translationlanguages.py",
+      "PyQt5/wdgDatetime.py",
+      "PyQt5/wdgDistributeAmount.py",
+      "PyQt5/wdgYear.py",
+      "PyQt5/wdgYearMonth.py",
+      "django/connection_dj.py",
+      "django/request_casting.py",
+      "example.py",
       "python/admin_pg.py",
       "python/call_by_name.py",
       "python/casts.py",
       "python/connection_pg.py",
+      "python/counter.py",
       "python/cpupower.py",
       "python/currency.py",
       "python/database_update.py",
       "python/datetime_functions.py",
       "python/decorators.py",
       "python/dialog.py",
-      "python/example.py",
       "python/file_functions.py",
       "python/github.py",
-      "python/internet.py",
       "python/libdictmanagers.py",
       "python/libmanagers.py",
       "python/lineal_regression.py",
@@ -89,9 +105,9 @@
       "python/myfunctions.py",
       "python/package_resources.py",
       "python/percentage.py",
+      "python/settings_file.py",
       "python/sqlparser.py",
-      "python/text_inputs.py",
-      "python/translationlanguages.py"
+      "python/text_inputs.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
