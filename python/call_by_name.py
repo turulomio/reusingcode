@@ -1,4 +1,4 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/django_moneymoney/monymoney/call_by_name.py
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/call_by_name.py
 ## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
 ## DO NOT UPDATE IT IN YOUR CODE
 
