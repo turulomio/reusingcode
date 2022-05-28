@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project reusingcode",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-05-28, 19:15:15"
+    "saved": "2022-05-28, 19:50:17"
   },
   "project": {
     "AUTHOR": "",
@@ -50,8 +50,7 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
-      "README.md",
-      "reusingcode.e4p"
+      "README.md"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -71,7 +70,6 @@
       "python/call_by_name.py",
       "python/casts.py",
       "python/connection_pg.py",
-      "python/connection_pg_qt.py",
       "python/cpupower.py",
       "python/currency.py",
       "python/database_update.py",
