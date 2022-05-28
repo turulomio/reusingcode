@@ -5,10 +5,6 @@
 from decimal import Decimal
 from json import dumps
 from logging import warning
-from .currency import Currency
-from .percentage import Percentage
-
-
 from inspect import currentframe
 
 ## Converts a string in a f-string
@@ -265,12 +261,21 @@ def value2object(value, stringtypes):
         return Decimal(value)
     elif stringtypes==["datetime", "date", "time"]:
         return value
-    elif stringtypes in ["EUR", "€"]:
-        return Currency(value, "EUR")
-    elif stringtypes in ["USD", "$"]:
-        return Currency(value, "EUR")
-    elif stringtypes=="Percentage":
-        return Percentage(value, 1)
+    elif stringtypes in ["EUR", "USD"]:
+        try:
+            from currency import Currency
+            return Currency(value, "EUR")
+        except ImportError:
+            raise NotImplementedError("You need https://github.com/turulomio/reusingcode/python/currency.py to use this function.")   
+        
+    elif stringtypes=="Percentage":       
+        try:
+            from percentage import Percentage
+            return Percentage(value, 1)
+        except ImportError:
+            raise NotImplementedError("You need https://github.com/turulomio/reusingcode/python/currency.py to use this function.")   
+        
+
     return value
 
     
