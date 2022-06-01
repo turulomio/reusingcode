@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project reusingcode",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-05-28, 20:06:48"
+    "saved": "2022-06-01, 18:14:54"
   },
   "project": {
     "AUTHOR": "",
@@ -82,10 +82,12 @@
       "PyQt5/wdgYearMonth.py",
       "django/connection_dj.py",
       "django/request_casting.py",
+      "django/responses_json.py",
       "example.py",
       "python/admin_pg.py",
       "python/call_by_name.py",
       "python/casts.py",
+      "python/connection_oracle.py",
       "python/connection_pg.py",
       "python/counter.py",
       "python/cpupower.py",

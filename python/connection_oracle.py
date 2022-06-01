@@ -1,10 +1,14 @@
-import datetime
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/connection_oracle.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
+
+from datetime import datetime
 from collections import OrderedDict
 from colorama import Fore
-import cx_Oracle
-import os
-import time
-import sys
+from cx_Oracle import DatabaseError, makedsn, connect as cx_connect
+from os import environ
+from time import sleep
+from sys import exit
 
 ## Esta clase realiza una conexión a Oracle y prevee de cursores y utilidades para gestionarla
 class Connection:
@@ -28,11 +32,11 @@ class Connection:
         self.service_name=service_name
         self.server=server
         self.port=port
-        self.connectiontime=datetime.datetime.now()
-        os.environ["NLS_LANG"]="AMERICAN_AMERICA.UTF8"
-        dsnStr=cx_Oracle.makedsn(server, port, service_name)
+        self.connectiontime=datetime.now()
+        environ["NLS_LANG"]="AMERICAN_AMERICA.UTF8"
+        dsnStr=makedsn(server, port, service_name)
         dsnStr=dsnStr.replace("SID", "SERVICE_NAME")
-        self.con=cx_Oracle.connect(user=user, password=password, dsn=dsnStr)
+        self.con=cx_connect(user=user, password=password, dsn=dsnStr)
 
 
     def disconnect(self):
@@ -43,19 +47,19 @@ class Connection:
 
     def reconnect(self):
         """Used to reconnect to avoid long conexion with timeout"""
-        print ("Reconecting after {}.".format(Fore.YELLOW + str(datetime.datetime.now()-self.connectiontime)))
-        self.connectiontime=datetime.datetime.now()
+        print ("Reconecting after {}.".format(Fore.YELLOW + str(datetime.now()-self.connectiontime)))
+        self.connectiontime=datetime.now()
         self.disconnect()
         self.connect(self.user, self.password, self.service_name, self.server, self.port)
 
     def cursor(self):
-        time.sleep(self.delay)
+        sleep(self.delay)
         return self.con.cursor()
     
     def cursor_one_number(self,sql, params=[]):
         try:
             cur=self.cursor()
-            time.sleep(self.delay)
+            sleep(self.delay)
             cur.execute(sql, params)
             data=[]
             for row in cur:
@@ -64,7 +68,7 @@ class Connection:
             if len(data)!=1:
                 print ("Used cursor_one_number and returned {} rows".format(len(data)))
             return data[0][0]
-        except cx_Oracle.DatabaseError as e:
+        except DatabaseError as e:
             print ("Se ha producido un error en la base de datos {}".format(e))
             print ("Función invocadora Connection.cursor_one_row: {}".format(sql))
             error,=e.args
@@ -72,19 +76,19 @@ class Connection:
             print (error.context)
             cur.close()
             self.con.disconnect()
-            sys.exit(0)
+            exit(1)
 
     def cursor_one_row(self,sql, params=[]):
         try:
             cur=self.cursor()
-            time.sleep(self.delay)
+            sleep(self.delay)
             cur.execute(sql, params)
             data=self.rows_to_dict_list(cur)
             cur.close()
             if len(data)!=1:
                 print ("Used cursor one_ row and returned {}".format(cur.rowcount))
             return data[0]
-        except cx_Oracle.DatabaseError as e:
+        except DatabaseError as e:
             print ("Se ha producido un error en la base de datos {}".format(e))
             print ("Función invocadora Connection.cursor_one_row: {}".format(sql))
             error,=e.args
@@ -92,20 +96,20 @@ class Connection:
             print (error.context)
             cur.close()
             self.con.disconnect()
-            sys.exit(0)
+            exit(1)
             
     ## Devuelve una lista con el valor solicitado  de la columna sql
     def cursor_one_column(self,sql, params=[]):
         try:
             cur=self.cursor()
-            time.sleep(self.delay)
+            sleep(self.delay)
             cur.execute(sql, params)
             r=[]
             for row in cur:
                 r.append(row[0])
             cur.close()
             return r
-        except cx_Oracle.DatabaseError as e:
+        except DatabaseError as e:
             print ("Se ha producido un error en la base de datos {}".format(e))
             print ("Función invocadora Connection.cursor_one_row: {}".format(sql))
             error,=e.args
@@ -113,17 +117,17 @@ class Connection:
             print (error.context)
             cur.close()
             self.con.disconnect()
-            sys.exit(0)
+            exit(1)
             
     def cursor_rows(self,sql, params=[]):
         try:
             cur=self.cursor()
-            time.sleep(self.delay)
+            sleep(self.delay)
             cur.execute(sql, params)
             data=self.rows_to_dict_list(cur)
             cur.close()
             return data
-        except cx_Oracle.DatabaseError as e:
+        except DatabaseError as e:
             print ("Se ha producido un error en la base de datos {}".format(e))
             print ("Función invocadora Connection.cursor_one_row: {}".format(sql))
             error,=e.args
@@ -131,7 +135,7 @@ class Connection:
             print (error.context)
             cur.close()
             self.con.disconnect()
-            sys.exit(0)
+            exit(1)
     
     def rows_to_dict_list(self, cursor):
         columns=[i[0] for i in cursor.description]
@@ -149,7 +153,7 @@ class Connection:
         from unogenerator.commons import Coord as C
         from unogenerator.helpers import helper_list_of_ordereddicts
         cur=self.cursor()
-        time.sleep(self.delay)
+        sleep(self.delay)
         cur.execute(sql,params)
         rows=self.rows_to_dict_list(cur)
         cur.close()
