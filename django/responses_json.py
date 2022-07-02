@@ -3,16 +3,19 @@
 ## DO NOT UPDATE IT IN YOUR CODE
 
 from base64 import b64encode
-from decimal import Decimal
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
     def default(self, o):
-        if isinstance(o, Decimal):
+        if o.__class__.__name__=="Decimal":
             return float(o)
-        if isinstance(o, bytes):
+        if o.__class__.__name__=="bytes":
             return b64encode(o).decode("UTF-8")
+        if o.__class__.__name__=="Percentage":
+            return o.value
+        if o.__class__.__name__=="Currency":
+            return o.amount
         return super().default(o)
 
 def json_success_response(success, detail):
@@ -33,7 +36,7 @@ def json_data_response(success, data,  detail=""):
             - data: Dict
             - detail: Description of success
     """
-    if not success.__class__.__name__=="bool" or not detail.__class__.__name__=="str" or not data.__class__.__name__ in ["dict", "OrderedDict"]:
-        print("json_succcess_response parameters are wrong")
+    if not success.__class__.__name__=="bool" or not detail.__class__.__name__=="str" or not data.__class__.__name__ in ["dict", "OrderedDict", "list"]:
+        print("json_data_response parameters are wrong")
         
     return JsonResponse( {"success": success,  "data": data,  "detail": detail}, encoder=MyDjangoJSONEncoder, safe=True)
