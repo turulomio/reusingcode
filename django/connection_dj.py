@@ -12,10 +12,11 @@ def show_queries(method):
         reset_queries()
         result = method(*args, **kw)
         sum_=0
+        rows=connection.queries
         for d in connection.queries:
             print (f"[{d['time']}] {d['sql']}")
             sum_=sum_+float(d['time'])
-        print (f"All db queries took {round(sum_*1000,2)} ms")
+        print (f"{len(rows)} db queries took {round(sum_*1000,2)} ms")
         return result
     return show
 
