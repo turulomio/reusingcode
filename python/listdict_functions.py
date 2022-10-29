@@ -311,25 +311,31 @@ def listdict_min_value(ld, key):
      return r
 
 ## Converts a tipical groyp by lor with year, month, value into an other lor with year, 1, 2, 3 .... 12, total 
-def listdict_year_month_value_transposition(ld, key_year="year", key_month="month", key_value="value", initial_value=0):
+def listdict_year_month_value_transposition(ld, key_year="year", key_month="month", key_value="value"):
+    if len(ld)==0:
+       return []
+
+    if not key_year in ld[0] or not key_month in ld[0] or not key_value in ld[0]:
+        print("Keys names are not correct in dictionary in listdict_year_month_value_transposition function")
+        return None
+
     min_year=listdict_min_value(ld, key_year)
     max_year=listdict_max_value(ld, key_year)
     #Initialize result
     r=[]
     for year in range(min_year,max_year+1):
-        r.append({"year": year, "1":initial_value, "2":initial_value,  "3":initial_value, "4":initial_value, "5":initial_value, "6":initial_value, "7":initial_value, "8":initial_value, "9":initial_value, "10":initial_value, "11":initial_value, "12":initial_value, "total":initial_value})
+        r.append({"year": year, "1":0, "2":0,  "3":0, "4":0, "5":0, "6":0, "7":0, "8":0, "9":0, "10":0, "11":0, "12":0, "total":0})
 
     #Assign values
     for d in ld:
         r[d[key_year]-min_year][str(d[key_month])]=d[key_value]
-    
+
     #Calculate totals
     for year in range(min_year,max_year+1):
         d=r[year-min_year]
         d["total"]=d["1"]+d["2"]+d["3"]+d["4"]+d["5"]+d["6"]+d["7"]+d["8"]+d["9"]+d["10"]+d["11"]+d["12"]
 
     return r
-    
 
 
 
