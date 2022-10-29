@@ -324,16 +324,16 @@ def listdict_year_month_value_transposition(ld, key_year="year", key_month="mont
     #Initialize result
     r=[]
     for year in range(min_year,max_year+1):
-        r.append({"year": year, "1":0, "2":0,  "3":0, "4":0, "5":0, "6":0, "7":0, "8":0, "9":0, "10":0, "11":0, "12":0, "total":0})
+        r.append({"year": year, "m1":0, "m2":0,  "m3":0, "m4":0, "m5":0, "m6":0, "m7":0, "m8":0, "m9":0, "m10":0, "m11":0, "m12":0, "total":0})
 
     #Assign values
     for d in ld:
-        r[d[key_year]-min_year][str(d[key_month])]=d[key_value]
+        r[d[key_year]-min_year]["m"+str(d[key_month])]=d[key_value]
 
     #Calculate totals
     for year in range(min_year,max_year+1):
         d=r[year-min_year]
-        d["total"]=d["1"]+d["2"]+d["3"]+d["4"]+d["5"]+d["6"]+d["7"]+d["8"]+d["9"]+d["10"]+d["11"]+d["12"]
+        d["total"]=d["m1"]+d["m2"]+d["m3"]+d["m4"]+d["m5"]+d["m6"]+d["m7"]+d["m8"]+d["m9"]+d["m10"]+d["m11"]+d["m12"]
 
     return r
 
