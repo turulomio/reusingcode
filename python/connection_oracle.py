@@ -17,6 +17,18 @@ class Connection:
         self.delay=0
         self.args=None
         self.connectiontime=None
+
+
+    ## This method allows to use with statement. 
+    ## with Connection as con:
+    ##      con.cursor_rows(...)
+    ## First calls __init__ , then enter, then exit
+    def __enter__(self):
+        return self
+        
+    ## Exit function to use with with statement. __enter__ defines enter in with
+    def __exit__(self, *args, **kwargs):
+        self.disconnect()
         
     ## To avoid pickling problems
     def __getstate__(self):
