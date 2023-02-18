@@ -1,8 +1,6 @@
 from decimal import Decimal
 from .casts import str2bool, string2list_of_integers
 from .datetime_functions import string2dtaware, string2date
-from rest_framework.response import Response
-from rest_framework import status
 from urllib import parse
 
 
