@@ -238,7 +238,8 @@ def object_from_url(url, class_, select_related=[], prefetch_related=[], model_u
         For example. Products model should contain /products/ in url and then its id
         If we woudn't validate a param could pass other model with the same id and give wrong results
     """
-    
+    if url is None:
+        return None
     # Get id and model_url
     if model_url is None:
         model_url, id_=parse_from_url(url)
