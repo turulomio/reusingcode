@@ -1,8 +1,9 @@
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/request_casting.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
 from decimal import Decimal
 from .casts import str2bool, string2list_of_integers
 from .datetime_functions import string2dtaware, string2date
-from urllib import parse
-
 
 class RequestCastingError(Exception):
     pass
@@ -203,9 +204,8 @@ def RequestDecimal(request, field, default=None):
 def RequestString(request, field, default=None):
     if not field in request.data:
         return default
-
     try:
-        r = request.data.get(field)
+        return request.data.get(field)
     except:
         raise RequestCastingError("Error in RequestString")
 
