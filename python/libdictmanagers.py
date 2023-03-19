@@ -1,13 +1,14 @@
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/libdictmanagers.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
+
 ## @brief Module with objects managers as list or as dictionary.
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
-## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
-##
 ## You have to use list objects if you are going to make selections and secuential access.
 
 from collections import OrderedDict
 from datetime import datetime, timedelta, date
 from logging import critical, debug
-from .datetime_functions import dtaware_day_end_from_date, dtaware_day_start_from_date, dtnaive_day_end_from_date, dtnaive_day_start_from_date
+from datetime_functions import dtaware_day_end_from_date, dtaware_day_start_from_date, dtnaive_day_end_from_date, dtnaive_day_start_from_date
 
 ## Defines who self.selected is managed
 ## If can take the following values

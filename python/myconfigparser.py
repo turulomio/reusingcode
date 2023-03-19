@@ -1,8 +1,13 @@
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/myconfigparser.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
+
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
-from .casts import str2bool, string2list_of_integers, string2list_of_strings, list2string
-from .datetime_functions import string2dtnaive
+
+from casts import str2bool, string2list_of_integers, string2list_of_strings, list2string
+from datetime_functions import string2dtnaive
 from base64 import b64encode, b64decode
 from configparser import ConfigParser
 from datetime import datetime
@@ -40,7 +45,7 @@ class MyConfigParser:
         if path.exists(self.filename):
             self.config.read(self.filename)
         else:
-            print("Configuration file {} doesn't exist".format(self.filename))
+            print("Creating a new configuration file: {}".format(self.filename))
         self.__generate_id()
         self.id=self.get("MyConfigParser","id")[:16]
 
@@ -135,15 +140,21 @@ class MyConfigParser:
             self.set("MyConfigParser","id", h.hexdigest())
 
 if __name__ == '__main__':
-    c=MyConfigParser("prueba.ini")
-    c.set("Example", "integer", 12134)
-    print ("Getting a integer",  c.getInteger("Example", "integer"))
-    print ("Getting a integer con default",  c.getInteger("Example", "integerdefault",  1))
-    print ("Getting a decimal",  c.getDecimal("Example", "decimal", 1212))
-    print("Getting a list", c.getList("Example", "list", ["hi", "bye"]))
-    print("Getting a list of integers", c.getList("Example", "list_integers", [1, 2, 3]))
+    from argparse import ArgumentParser
 
-    c.cset("Example", "cstring", "Mi texto")
-    print("Getting a cstring", c.cget("Example", "cstring"))
+    parser=ArgumentParser()
+    parser.description="Configura las keys en ficheros de MyConfigParser"
+    parser.add_argument("--file", required=True)
+    parser.add_argument("--section", required=True)
+    parser.add_argument("--key", required=True)
+    parser.add_argument("--value", required=True)
+    parser.add_argument("--secure", action="store_true", default=False)
+    args=parser.parse_args()
 
-    c.save()
+    config=MyConfigParser(args.file)
+    if args.secure:
+        config.cset(args.section, args.key, args.value)
+    else:
+        config.set(args.section, args.key, args.value)
+    config.save()
+

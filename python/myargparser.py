@@ -1,3 +1,7 @@
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/myargparser.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
+
 from argparse import ArgumentParser
 from logging import basicConfig, INFO, WARNING,  ERROR,  CRITICAL, DEBUG, info
 

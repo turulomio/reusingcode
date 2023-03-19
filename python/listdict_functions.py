@@ -1,11 +1,8 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
-## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
+## THIS IS FILE IS FROM https://github.com/turulomio/django_moneymoney/moneymoney/listdict_functions.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
 
-from casts import var2json
 from collections import OrderedDict
-
-
-
 
 ## El objetivo es crear un objeto list_dict que se almacenera en self.ld con funciones set
 ## set_from_db #Todo se carga desde base de datos con el minimo parametro posible
@@ -232,6 +229,11 @@ def listdict2list_distinct(listdict, key, sorted=False, cast=None):
 
 
 def listdict2json(listdict):
+    try:
+        from casts import var2json
+    except ImportError:
+        raise NotImplementedError("You need https://github.com/turulomio/reusingcode/python/casts.py to use this function.")
+    
     if len(listdict)==0:
         return "[]"
 
@@ -281,13 +283,99 @@ def listdict2listofordereddicts(ld, keys):
         r.append(r_d)
     return r
 
+
+## Returns maximum value of a given key. Is unique. REturns NOne if listdict is empty
+def listdict_max_value(ld, key):
+     if len(ld)>0:
+          r=ld[0][key]
+     else:
+         return None
+     for d in ld:
+         if  d[key]>r:
+             r=d[key]
+     return r
+
+## Returns minimum value of a given key. Is unique. REturns NOne if listdict is empty
+def listdict_min_value(ld, key):
+     if len(ld)>0:
+          r=ld[0][key]
+     else:
+         return None
+     for d in ld:
+         if  d[key]<r:
+             r=d[key]
+     return r
+
+## Converts a tipical groyp by lor with year, month, value into an other lor with year, 1, 2, 3 .... 12, total 
+def listdict_year_month_value_transposition(ld, key_year="year", key_month="month", key_value="value"):
+    if len(ld)==0:
+       return []
+
+    if not key_year in ld[0] or not key_month in ld[0] or not key_value in ld[0]:
+        print("Keys names are not correct in dictionary in listdict_year_month_value_transposition function")
+        return None
+
+    min_year=listdict_min_value(ld, key_year)
+    max_year=listdict_max_value(ld, key_year)
+    #Initialize result
+    r=[]
+    for year in range(min_year,max_year+1):
+        r.append({"year": year, "m1":0, "m2":0,  "m3":0, "m4":0, "m5":0, "m6":0, "m7":0, "m8":0, "m9":0, "m10":0, "m11":0, "m12":0, "total":0})
+
+    #Assign values
+    for d in ld:
+        r[d[key_year]-min_year]["m"+str(d[key_month])]=r[d[key_year]-min_year]["m"+str(d[key_month])]+d[key_value]
+
+    #Calculate totals
+    for year in range(min_year,max_year+1):
+        d=r[year-min_year]
+        d["total"]=d["m1"]+d["m2"]+d["m3"]+d["m4"]+d["m5"]+d["m6"]+d["m7"]+d["m8"]+d["m9"]+d["m10"]+d["m11"]+d["m12"]
+
+    return r
+
+## Converts a tipical groyp by lor with A, B, value, value into an other lod with A as rows, B as columns and value as AxB list of dic
+## columns order can be defined in order
+def listdict_row_column_value_transformation(ld, key_row, key_column, key_value, order=None):
+    if len(ld)==0:
+       return []
+
+    if not key_row in ld[0] or not key_column in ld[0] or not key_value in ld[0]:
+        print("Keys names are not correct in dictionary in listdict_year_month_value_transposition function")
+        return None
+
+    #Searches for all diferent keys
+    columns=set()
+    rows=set()
+    for d in ld:
+        columns.add(d[key_column])
+        rows.add(d[key_row])
+    columns=list(columns)
+    rows=list(rows)
+    
+    #Initialize result with a dictionary of dictionary
+    dd={}
+    for row in rows:
+        d={"title": row}
+        for column in columns:
+            d[column]=0
+        dd[row]=d
+
+    #Assign values
+    for d in ld:
+        dd[d[key_row]][d[key_column]]=d[key_value]
+    
+    ## Converts dd to a ld
+    r=[]
+    for k, v in dd.items():
+        r.append(v)
+    
+    return r
+
 if __name__ == "__main__":
     from datetime import datetime, date
     from decimal import Decimal
     ld=[]
     ld.append({"a": datetime.now(), "b": date.today(), "c": Decimal(12.32), "d": None, "e": int(12), "f":None, "g":True, "h":False})
-    print(listdict2json(ld))
-
 
     def print_lor(lor):
         print("")
@@ -295,3 +383,14 @@ if __name__ == "__main__":
             print(row)
             
     print(listdict2dictkv(ld, "a","b"))
+    
+    
+    
+    print ("-- List dict transposition")
+    o=[
+        {"year": 2022, "month": 1, "my_sum": 12},
+        {"year": 2021, "month": 2, "my_sum": 123},
+        {"year": 2019, "month": 5, "my_sum": 1},
+        {"year": 2022, "month": 12, "my_sum": 12},
+    ]
+    print(listdict_year_month_value_transposition(o,key_value="my_sum"))

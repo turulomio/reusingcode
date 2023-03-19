@@ -1,17 +1,27 @@
-# reusingcode
+# ReusingCode projects
 Code that I reuse in several projects
 
-# Function for python setups
+## Reuse files
 
-    def download_from_github(self,user,repository,path_filename, destiny_directory):
-        cwd=os.getcwd()
-        os.system("touch '{}/{}'".format(destiny_directory,os.path.basename(path_filename)))
-        os.system("rm '{}/{}'".format(destiny_directory, os.path.basename(path_filename)))
-        os.chdir(destiny_directory)
-        comand="wget -q https://raw.githubusercontent.com/{}/{}/master/{}  --no-clobber".format(user,repository, path_filename)
-        os.system(comand)
-        print("Updating {} from https://github.com/turulomio/reusingcode/{}".format(os.path.basename(path_filename),path_filename))
-        os.chdir(cwd)
+All files are licensed to GPL-3. So you can reuse them in your projects
 
-## Example
-        self.download_from_github('turulomio','reusingcode','python/connection_pg.py', 'caloriestracker')
+To help to include in your prodects you can use github.py module (download_from_github)
+
+For example
+
+```python
+self.download_from_github('turulomio','reusingcode','python/connection_pg.py', 'caloriestracker')
+```
+
+## Good practices to improve this files
+
+### python
+
+- You should be able to run a file with `python file.py` so add imports with `from casts import x`
+- You can
+
+### PyQt5
+- You should be able to run a file with `example.py`
+
+## django
+- You should add imports with `from .casts.py import x`
