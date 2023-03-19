@@ -118,6 +118,18 @@ def connection_pg():
     command("sed -i -e 's/\.casts/casts/' {}/connection_pg.py".format(dir))
     command("python {}/connection_pg.py".format(dir))  
 
+def connection_pg3():
+    dir="/tmp/reusingcode_connection_pg3"
+    rmtree(dir, ignore_errors=True)
+    makedirs(dir, exist_ok=True)
+
+    command("cp connection_pg3.py {0}".format(dir))
+    command("cp casts.py {0}/casts.py".format(dir))
+    command("cp currency.py {0}/currency.py".format(dir))
+    command("cp percentage.py {0}/percentage.py".format(dir))
+    command("sed -i -e 's/\.casts/casts/' {}/connection_pg3.py".format(dir))
+    command("python {}/connection_pg3.py".format(dir))  
+
 def myconfigparser():
     dir="/tmp/reusingcode_myconfigparser"
     rmtree(dir, ignore_errors=True)
@@ -191,7 +203,7 @@ def addDebugSystem( level):
     info("Debug level set to {}".format(level))
 
 parser=ArgumentParser(description='Program to allow see reusingcode modules as standalone scripts', formatter_class=RawTextHelpFormatter)
-parser.add_argument('--example', action='store', choices=['wdgDatetime', 'wdgYearMonth', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myconfigparser',  'myqcharts', 'frmAccess', 'connection_pg'], required=True)
+parser.add_argument('--example', action='store', choices=['wdgDatetime', 'wdgYearMonth', 'frmSelector', 'libmanagers', 'myQTableWidget' , 'myconfigparser',  'myqcharts', 'frmAccess', 'connection_pg', 'connection_pg3'], required=True)
 parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="DEBUG")
 args=parser.parse_args()
 
@@ -212,5 +224,7 @@ elif args.example=="libmanagers":
     libmanagers()
 elif args.example=="connection_pg":
     connection_pg()
+elif args.example=="connection_pg3":
+    connection_pg3()
 elif args.example=="myconfigparser":
     myconfigparser()
