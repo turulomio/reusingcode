@@ -188,6 +188,13 @@ def listdict2dict(listdict, key):
         d[ld[key]]=ld
     return d
 
+## Converts a dict of dictionaries (prefered orderdict) to a list of dictionaries
+def dict2listdict(d):
+    r=[]
+    for k,v in d.items():
+        r.append(v)
+    return r
+
 ## Returns a list from a listdict key
 ## @param listdict
 ## @param key String with the key to extract
@@ -305,6 +312,15 @@ def listdict_min_value(ld, key):
          if  d[key]<r:
              r=d[key]
      return r
+
+def listdict_rename_key(ld, from_, to_):
+    """
+        Renames a key(from_) to another key(to_) in each dictionary in ld
+    """
+    for d in ld:
+        d[to_]=d.pop(from_)
+    return ld
+
 
 ## Converts a tipical groyp by lor with year, month, value into an other lor with year, 1, 2, 3 .... 12, total 
 def listdict_year_month_value_transposition(ld, key_year="year", key_month="month", key_value="value"):
