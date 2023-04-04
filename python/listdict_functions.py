@@ -196,6 +196,13 @@ def listdict2dict_tuple(listdict, key1, key2):
         d[(ld[key1],ld[key2])]=ld
     return d
 
+## Converts a dict of dictionaries (prefered orderdict) to a list of dictionaries
+def dict2listdict(d):
+    r=[]
+    for k,v in d.items():
+        r.append(v)
+    return r
+
 ## Returns a list from a listdict key
 ## @param listdict
 ## @param key String with the key to extract
@@ -292,10 +299,6 @@ def listdict2listofordereddicts(ld, keys):
     return r
 
 
-## Returns the dictionary that has the max value of a key. Not necessary is unique
-def listdict_max(ld, key):
-     print("TODO")
-
 ## Returns maximum value of a given key. Is unique. REturns NOne if listdict is empty
 def listdict_max_value(ld, key):
      if len(ld)>0:
@@ -318,6 +321,15 @@ def listdict_min_value(ld, key):
              r=d[key]
      return r
 
+def listdict_rename_key(ld, from_, to_):
+    """
+        Renames a key(from_) to another key(to_) in each dictionary in ld
+    """
+    for d in ld:
+        d[to_]=d.pop(from_)
+    return ld
+
+
 ## Converts a tipical groyp by lor with year, month, value into an other lor with year, 1, 2, 3 .... 12, total 
 def listdict_year_month_value_transposition(ld, key_year="year", key_month="month", key_value="value"):
     if len(ld)==0:
@@ -336,7 +348,7 @@ def listdict_year_month_value_transposition(ld, key_year="year", key_month="mont
 
     #Assign values
     for d in ld:
-        r[d[key_year]-min_year]["m"+str(d[key_month])]=d[key_value]
+        r[d[key_year]-min_year]["m"+str(d[key_month])]=r[d[key_year]-min_year]["m"+str(d[key_month])]+d[key_value]
 
     #Calculate totals
     for year in range(min_year,max_year+1):
