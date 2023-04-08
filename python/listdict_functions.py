@@ -3,6 +3,7 @@
 ## DO NOT UPDATE IT IN YOUR CODE
 
 from collections import OrderedDict
+from datetime import date
 
 ## El objetivo es crear un objeto list_dict que se almacenera en self.ld con funciones set
 ## set_from_db #Todo se carga desde base de datos con el minimo parametro posible
@@ -187,6 +188,20 @@ def listdict2dict(listdict, key):
     for ld in listdict:
         d[ld[key]]=ld
     return d
+    
+## Converts a listdict to a dict using (key1,key2) tuple  as new dict key, and the dict as a value
+def listdict2dict_tuple(listdict, key1, key2):
+    d={}
+    for ld in listdict:
+        d[(ld[key1],ld[key2])]=ld
+    return d
+
+## Converts a dict of dictionaries (prefered orderdict) to a list of dictionaries
+def dict2listdict(d):
+    r=[]
+    for k,v in d.items():
+        r.append(v)
+    return r
 
 ## Returns a list from a listdict key
 ## @param listdict
@@ -306,6 +321,15 @@ def listdict_min_value(ld, key):
              r=d[key]
      return r
 
+def listdict_rename_key(ld, from_, to_):
+    """
+        Renames a key(from_) to another key(to_) in each dictionary in ld
+    """
+    for d in ld:
+        d[to_]=d.pop(from_)
+    return ld
+
+
 ## Converts a tipical groyp by lor with year, month, value into an other lor with year, 1, 2, 3 .... 12, total 
 def listdict_year_month_value_transposition(ld, key_year="year", key_month="month", key_value="value"):
     if len(ld)==0:
@@ -332,7 +356,6 @@ def listdict_year_month_value_transposition(ld, key_year="year", key_month="mont
         d["total"]=d["m1"]+d["m2"]+d["m3"]+d["m4"]+d["m5"]+d["m6"]+d["m7"]+d["m8"]+d["m9"]+d["m10"]+d["m11"]+d["m12"]
 
     return r
-
 
 def listdict_year_month_value_transposition_sum(lymv_a, lymv_b):
     """
@@ -373,6 +396,19 @@ def listdict_year_month_value_transposition_sum(lymv_a, lymv_b):
         new["total"]=d["total"]+get_younger(d["year"],"total")
         r.append(new)
     return r
+
+## Converts a tipical groyp by lor with year, month (normaly extracted from db to fill empty values)
+def listdict_year_month_value_filling(ld, year_from, year_to=date.today().year, fill_value=0, key_year="year", key_month="month", key_value="value"):
+    ld_tuple=listdict2dict_tuple(listdict, key_year, month_year)
+    for year in range(year_from,year_to+1):
+        for month in range (1,13):
+            if not (key_year,key_month) in ld_tuple:
+                ld_tuple[(key_year,key_month)]={key_year: year, key_month: month, key_value:fill_value}
+    r=[]
+    for d in ld_tuple.values:
+        r.append(d)
+    return r
+
 
 ## Converts a tipical groyp by lor with A, B, value, value into an other lod with A as rows, B as columns and value as AxB list of dic
 ## columns order can be defined in order
