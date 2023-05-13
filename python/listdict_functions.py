@@ -357,6 +357,46 @@ def listdict_year_month_value_transposition(ld, key_year="year", key_month="mont
 
     return r
 
+def listdict_year_month_value_transposition_sum(lymv_a, lymv_b):
+    """
+        Sums to listdict_year_month_value_transpositions
+    """
+    def get_younger(year, field):
+        if year in d_younger:
+            return d_younger[year][field]
+        else:
+            return 0
+    
+    if len(lymv_a)==0:
+        return lymv_b
+    if len(lymv_b)==0:
+        return lymv_a
+    year_lymv_a=lymv_a[0]["year"]
+    year_lymv_b=lymv_b[0]["year"]
+    print(year_lymv_a, year_lymv_b)
+    older=lymv_a if year_lymv_a<year_lymv_b else lymv_b
+    younger=lymv_a if year_lymv_a>year_lymv_b else lymv_b
+    d_younger=listdict2dict(younger, "year")
+    r=[]
+    for d in older:
+        new={}
+        new["year"]=d["year"]
+        new["m1"]=d["m1"]+get_younger(d["year"],"m1")
+        new["m2"]=d["m2"]+get_younger(d["year"],"m2")
+        new["m3"]=d["m3"]+get_younger(d["year"],"m3")
+        new["m4"]=d["m4"]+get_younger(d["year"],"m4")
+        new["m5"]=d["m5"]+get_younger(d["year"],"m5")
+        new["m6"]=d["m6"]+get_younger(d["year"],"m6")
+        new["m7"]=d["m7"]+get_younger(d["year"],"m7")
+        new["m8"]=d["m8"]+get_younger(d["year"],"m8")
+        new["m9"]=d["m9"]+get_younger(d["year"],"m9")
+        new["m10"]=d["m10"]+get_younger(d["year"],"m10")
+        new["m11"]=d["m11"]+get_younger(d["year"],"m11")
+        new["m12"]=d["m12"]+get_younger(d["year"],"m12")
+        new["total"]=d["total"]+get_younger(d["year"],"total")
+        r.append(new)
+    return r
+
 ## Converts a tipical groyp by lor with year, month (normaly extracted from db to fill empty values)
 def listdict_year_month_value_filling(ld, year_from, year_to=date.today().year, fill_value=0, key_year="year", key_month="month", key_value="value"):
     ld_tuple=listdict2dict_tuple(listdict, key_year, month_year)
