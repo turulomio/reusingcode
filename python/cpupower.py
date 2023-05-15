@@ -7,10 +7,16 @@ from os import path
 fail_frequency=400000
 
 def is_cpufreq_configured():
-    return path.exists("/sys/devices/system/cpu/cpu0/cpufreq/")
+    return path.exists("/sys/devices/system/cpu/cpu0/cpufreq/") and \
+           path.exists("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") and \
+           path.exists("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq") and \
+           path.exists("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") and \
+           path.exists("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq") and \
+           path.exists("/sys/devices/system/cpu/intel_pstate/no_turbo")
+
 
 def sys_get_cpu_max_freq():
-    if is_cpu_configured():
+    if is_cpufreq_configured():
         with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") as f:
             data = f.read()
             return data[:-1]
@@ -18,7 +24,7 @@ def sys_get_cpu_max_freq():
        return fail_frequency
 
 def sys_get_cpu_min_freq():
-    if is_cpu_configured():
+    if is_cpufreq_configured():
         with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq") as f:
             data = f.read()
             return data[:-1]
@@ -26,7 +32,7 @@ def sys_get_cpu_min_freq():
        return fail_frequency
 
 def sys_get_cpu_current_freq():
-    if is_cpu_configured():
+    if is_cpufreq_configured():
         with open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") as f:
             data = f.read()
             return data[:-1]
@@ -34,7 +40,7 @@ def sys_get_cpu_current_freq():
        return fail_frequency
 
 def sys_get_cpu_max_scaling_freq():
-    if is_cpu_configured():
+    if is_cpufreq_configured():
         with open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq") as f:
             data = f.read()
             return data[:-1]
@@ -43,7 +49,7 @@ def sys_get_cpu_max_scaling_freq():
 
 
 def sys_set_cpu_max_scaling_freq(freq):
-    if is_cpu_configured():
+    if is_cpufreq_configured():
         i=0
         while True:
             filename="/sys/devices/system/cpu/cpu{}/cpufreq/scaling_max_freq".format(i)
@@ -59,7 +65,7 @@ def sys_set_cpu_max_scaling_freq(freq):
 
 
 def sys_set_cpu_turbo(boolean):
-    if is_cpu_configured():
+    if is_cpufreq_configured():
         if boolean==True:
             s="0"
         else:
