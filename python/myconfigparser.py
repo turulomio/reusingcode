@@ -148,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument("--section", required=True)
     parser.add_argument("--key", required=True)
     parser.add_argument("--value", required=True)
-    parser.add_argument("--secure", action="store_true", default=False)
+    parser.add_argument("--secure", help="Encode setting", action="store_true", default=False)
     args=parser.parse_args()
 
     config=MyConfigParser(args.file)
