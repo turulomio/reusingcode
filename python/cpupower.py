@@ -4,51 +4,71 @@
 
 from os import path
 
+fail_frequency=400000
+
 def is_cpufreq_configured():
     return path.exists("/sys/devices/system/cpu/cpu0/cpufreq/")
 
 def sys_get_cpu_max_freq():
-    with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") as f:
-        data = f.read()
-        return data[:-1]
+    if is_cpu_configured():
+        with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") as f:
+            data = f.read()
+            return data[:-1]
+    else:
+       return fail_frequency
 
 def sys_get_cpu_min_freq():
-    with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq") as f:
-        data = f.read()
-        return data[:-1]
+    if is_cpu_configured():
+        with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq") as f:
+            data = f.read()
+            return data[:-1]
+    else:
+       return fail_frequency
 
 def sys_get_cpu_current_freq():
-    with open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") as f:
-        data = f.read()
-        return data[:-1]
+    if is_cpu_configured():
+        with open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") as f:
+            data = f.read()
+            return data[:-1]
+    else:
+       return fail_frequency
 
 def sys_get_cpu_max_scaling_freq():
-    with open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq") as f:
-        data = f.read()
-        return data[:-1]
+    if is_cpu_configured():
+        with open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq") as f:
+            data = f.read()
+            return data[:-1]
+    else:
+       return fail_frequency
 
 
 def sys_set_cpu_max_scaling_freq(freq):
-    i=0
-    while True:
-        filename="/sys/devices/system/cpu/cpu{}/cpufreq/scaling_max_freq".format(i)
-        if path.exists(filename)==True:
-            with open(filename,"w") as f:
-                f.write(str(freq))
-            i=i+1
-        else:
-            break
+    if is_cpu_configured():
+        i=0
+        while True:
+            filename="/sys/devices/system/cpu/cpu{}/cpufreq/scaling_max_freq".format(i)
+            if path.exists(filename)==True:
+                with open(filename,"w") as f:
+                    f.write(str(freq))
+                i=i+1
+            else:
+                break
+    else:
+       print("Error setting sys_set_cpu_max_scaling_freq")
 
 
 
 def sys_set_cpu_turbo(boolean):
-    if boolean==True:
-        s="0"
+    if is_cpu_configured():
+        if boolean==True:
+            s="0"
+        else:
+            s="1"
+        filename="/sys/devices/system/cpu/intel_pstate/no_turbo"
+        with open(filename,"w") as f:
+            f.write(s)
     else:
-        s="1"
-    filename="/sys/devices/system/cpu/intel_pstate/no_turbo"
-    with open(filename,"w") as f:
-        f.write(s)
+       print("Error setting sys_set_cpu_turbo")
 
 
 if __name__ == '__main__':
