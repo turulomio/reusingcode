@@ -3,13 +3,11 @@ from decimal import Decimal
 from json import JSONEncoder, dumps, loads
 from base64 import b64encode, b64decode
 
-
 # Forma en que debe parsearse los Decimals
 class DecimalsWay:
     Decimal=1
     String=2
     Float=3
-
 
 ## Usa
 class MyJSONEncoder(JSONEncoder):
@@ -254,7 +252,7 @@ if __name__ == '__main__':
     print ("MyJSONEncoderDecimalsAsFloat_loads")
     print(MyJSONEncoderDecimalsAsFloat_loads(MyJSONEncoderDecimalsAsFloat_dumps(d)))
     print()
-    print ("MyJSONEncoderDecimalsAsString_loads")
+    print ("MyJSONEncoderDecimalsAsString_dumps")
     print (MyJSONEncoderDecimalsAsString_dumps(d))
     print()
     print ("MyJSONEncoderDecimalsAsString_loads")

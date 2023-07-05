@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project reusingcode",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-07-05, 08:33:20"
+    "saved": "2023-07-05, 14:17:13"
   },
   "project": {
     "AUTHOR": "",
@@ -53,7 +53,6 @@
     "MIXEDLANGUAGE": false,
     "OTHERS": [
       "README.md",
-      "reusingcode.e4p",
       "reusingcode.epj"
     ],
     "OTHERTOOLSPARMS": {},
