@@ -9,6 +9,24 @@ class DecimalsWay:
     String=2
     Float=3
 
+def postgres_datetime_string_2_dtaware(s):
+    if s is None:
+        return None
+    arrPlus=s.split("+")
+    zone=arrPlus[1]
+    
+    arrPunto=arrPlus[0].split(".")
+    if len(arrPunto)==2:
+        naive=arrPunto[0]
+        micro=str(arrPunto[1])
+    else:
+        naive=arrPunto[0]
+        micro='0'
+    micro=int(micro+ '0'*(6-len(micro)))
+    dt=datetime.strptime( naive+"+"+zone+":00", "%Y-%m-%d %H:%M:%S%z" )
+    dt=dt+timedelta(microseconds=micro)
+    return dt
+
 ## Usa
 class MyJSONEncoder(JSONEncoder):
     # Part of this code is from https://github.com/django/django/blob/main/django/core/serializers/json.py
@@ -43,12 +61,8 @@ class MyJSONEncoder(JSONEncoder):
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
         if isinstance(o, datetime):
-            r = o.isoformat()
-            if o.microsecond:
-                r = r[:23] + r[26:]
-            if r.endswith("+00:00"):
-                r = r.removesuffix("+00:00") + "Z"
-            return r
+            dtaware= postgres_datetime_string_2_dtaware(o)
+            return dtaware.isoformat()
         elif isinstance(o, date):
             return o.isoformat()
         elif isinstance(o, time):

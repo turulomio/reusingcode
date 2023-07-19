@@ -2,11 +2,19 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
-from .casts import b2s
 from datetime import datetime
 from logging import debug
 from psycopg import connect as psycopg_connect, Error, ClientCursor
 from psycopg.rows import dict_row
+
+## BEGIN OF COPIES
+## To make independient modules I copy this from casts
+
+def b2s(b, code='UTF-8'):
+    return b.decode(code)
+## END OF COPIES
+
+
 
 class Connection:
     def __init__(self):
