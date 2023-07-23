@@ -5,27 +5,9 @@ from base64 import b64encode, b64decode
 
 # Forma en que debe parsearse los Decimals
 class DecimalsWay:
-    Decimal=1
+    Decimal=1  #Uses a String with decimal to detect decimals
     String=2
     Float=3
-
-def postgres_datetime_string_2_dtaware(s):
-    if s is None:
-        return None
-    arrPlus=s.split("+")
-    zone=arrPlus[1]
-    
-    arrPunto=arrPlus[0].split(".")
-    if len(arrPunto)==2:
-        naive=arrPunto[0]
-        micro=str(arrPunto[1])
-    else:
-        naive=arrPunto[0]
-        micro='0'
-    micro=int(micro+ '0'*(6-len(micro)))
-    dt=datetime.strptime( naive+"+"+zone+":00", "%Y-%m-%d %H:%M:%S%z" )
-    dt=dt+timedelta(microseconds=micro)
-    return dt
 
 ## Usa
 class MyJSONEncoder(JSONEncoder):
@@ -61,8 +43,7 @@ class MyJSONEncoder(JSONEncoder):
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
         if isinstance(o, datetime):
-            dtaware= postgres_datetime_string_2_dtaware(o)
-            return dtaware.isoformat()
+            return o.isoformat()
         elif isinstance(o, date):
             return o.isoformat()
         elif isinstance(o, time):
