@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project reusingcode",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-07-05, 15:56:01"
+    "saved": "2023-07-23, 09:28:46"
   },
   "project": {
     "AUTHOR": "",
@@ -90,7 +90,6 @@
       "python/libdictmanagers.py",
       "python/libmanagers.py",
       "python/lineal_regression.py",
-      "python/listdict_functions.py",
       "python/myargparser.py",
       "python/myconfigparser.py",
       "python/myfunctions.py",
