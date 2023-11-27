@@ -6,7 +6,7 @@
 
 from datetime import datetime, timedelta, date
 from logging import critical, debug
-from datetime_functions import dtaware_day_end_from_date, dtaware_day_start_from_date, dtnaive_day_end_from_date, dtnaive_day_start_from_date
+from pydicts import casts
 
 ## Defines who self.selected is managed
 ## If can take the following values
@@ -593,14 +593,14 @@ class DateValueManager(ObjectManager):
         for o in self.arr:
             if start==True:
                 if timezone==None:
-                    r.appendDV(dtnaive_day_start_from_date(o.date), o.value)
+                    r.appendDV(casts.dtnaive_day_start_from_date(o.date), o.value)
                 else:
-                    r.appendDV(dtaware_day_start_from_date(o.date, timezone), o.value)
+                    r.appendDV(casts.dtaware_day_start_from_date(o.date, timezone), o.value)
             else:#end of day
                 if timezone==None:
-                    r.appendDV(dtnaive_day_end_from_date(o.date), o.value)
+                    r.appendDV(casts.dtnaive_day_end_from_date(o.date), o.value)
                 else:
-                    r.appendDV(dtaware_day_end_from_date(o.date, timezone), o.value)
+                    r.appendDV(casts.dtaware_day_end_from_date(o.date, timezone), o.value)
         return r
 
     ## Returns a DVManager with the simple movil average of the array

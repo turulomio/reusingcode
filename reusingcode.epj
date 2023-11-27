@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project reusingcode",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-07-23, 09:28:46"
+    "saved": "2023-11-27, 10:26:45"
   },
   "project": {
     "AUTHOR": "",
@@ -70,11 +70,9 @@
     "RESOURCES": [],
     "SOURCES": [
       "django/connection_dj.py",
-      "django/request_casting.py",
       "django/responses_json.py",
       "example.py",
       "python/admin_pg.py",
-      "python/casts.py",
       "python/connection_oracle.py",
       "python/connection_pg.py",
       "python/connection_pg3.py",
@@ -82,7 +80,6 @@
       "python/cpupower.py",
       "python/currency.py",
       "python/database_update.py",
-      "python/datetime_functions.py",
       "python/decorators.py",
       "python/dialog.py",
       "python/file_functions.py",
@@ -100,6 +97,7 @@
       "python/sqlparser.py",
       "python/text_inputs.py"
     ],
+    "SOURCESDIR": "",
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
     "SPELLWORDS": "",
